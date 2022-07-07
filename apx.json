@@ -1,0 +1,12 @@
+{
+    "component": "r2artifact",
+    "repoName": "onl_report_created_insurance_event",
+    "uuaa": "rbvd",
+    "slave_label": "apx",
+    "extra_properties": null,
+    "apxrepoBranch": "master",
+    "componentPaaSId": "onl_report_created_insurance_event",
+    "appPaaSId": "rbvd",
+    "proyectPaaSId": "pe.rbvd.app-id-105529.dsg",
+    "resource_type": "du_online"
+}
