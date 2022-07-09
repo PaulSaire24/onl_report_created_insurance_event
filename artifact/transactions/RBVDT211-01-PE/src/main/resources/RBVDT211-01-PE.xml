@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<transaction xmlns="http://www.w3schools.com" transactionName="RBVDT211" application="RBVD" version="01" country="PE" language="ES">
+	<paramsIn>
+		<parameter order="1" name="quotationId" mandatory="1" type="String" size="20"/>
+		<parameter order="2" name="operationDate" mandatory="1" type="Timestamp" size="0"/>
+		<dto order="3" name="validityPeriod" mandatory="0" package="com.bbva.rbvd.dto.insrncsale.commons.ValidityPeriodDTO" artifactId="RBVDC201">
+			<parameter order="1" name="startDate" mandatory="1" type="Date (YYYY-MM-DD)" size="0"/>
+			<parameter order="2" name="endDate" mandatory="1" type="Date (YYYY-MM-DD)" size="0"/>
+		</dto>
+		<dto order="4" name="holder" mandatory="0" package="com.bbva.rbvd.dto.insrncsale.commons.HolderDTO" artifactId="RBVDC201">
+			<parameter order="1" name="id" mandatory="0" type="String" size="8"/>
+			<dto order="2" name="identityDocument" mandatory="0" package="com.bbva.rbvd.dto.insrncsale.commons.IdentityDocumentDTO" artifactId="RBVDC201">
+				<dto order="1" name="documentType" mandatory="1" package="com.bbva.rbvd.dto.insrncsale.commons.DocumentTypeDTO" artifactId="RBVDC201">
+					<parameter order="1" name="id" mandatory="1" type="String" size="30"/>
+				</dto>
+				<parameter order="2" name="documentNumber" mandatory="1" type="String" size="11"/>
+			</dto>
+			<list order="3" name="contactDetails" mandatory="0">
+				<dto order="1" name="Type" mandatory="0" package="com.bbva.rbvd.dto.insrncsale.commons.ContactDetailDTO" artifactId="RBVDC201">
+					<parameter order="1" name="id" mandatory="0" type="String" size="20"/>
+					<dto order="2" name="contact" mandatory="0" package="com.bbva.rbvd.dto.insrncsale.commons.ContactDTO" artifactId="RBVDC201">
+						<parameter order="1" name="contactType" mandatory="1" type="String" size="30"/>
+						<parameter order="2" name="value" mandatory="1" type="String" size="100"/>
+					</dto>
+				</dto>
+			</list>
+		</dto>
+		<dto order="5" name="product" mandatory="1" package="com.bbva.rbvd.dto.insrncsale.events.ProductCreatedInsrcEventDTO" artifactId="RBVDC201">
+			<parameter order="1" name="id" mandatory="1" type="String" size="40"/>
+			<dto order="2" name="plan" mandatory="1" package="com.bbva.rbvd.dto.insrncsale.events.PlanCreatedInsrcEventDTO" artifactId="RBVDC201">
+				<parameter order="1" name="id" mandatory="1" type="String" size="10"/>
+				<dto order="2" name="totalInstallment" mandatory="0" package="com.bbva.rbvd.dto.insrncsale.policy.TotalInstallmentDTO" artifactId="RBVDC201">
+					<parameter order="1" name="amount" mandatory="1" type="Double" size="17"/>
+					<parameter order="2" name="currency" mandatory="1" type="String" size="3"/>
+					<dto order="3" name="period" mandatory="1" package="com.bbva.rbvd.dto.insrncsale.policy.PaymentPeriodDTO" artifactId="RBVDC201">
+						<parameter order="1" name="id" mandatory="1" type="String" size="20"/>
+					</dto>
+				</dto>
+				<list order="3" name="installmentPlans" mandatory="1">
+					<dto order="1" name="Type" mandatory="0" package="com.bbva.rbvd.dto.insrncsale.events.InstallmentPlansCreatedInsrcEvent" artifactId="RBVDC201">
+						<parameter order="1" name="paymentsTotalNumber" mandatory="1" type="Long" size="4"/>
+						<dto order="2" name="paymentAmount" mandatory="1" package="com.bbva.rbvd.dto.insrncsale.commons.PaymentAmountDTO" artifactId="RBVDC201">
+							<parameter order="1" name="amount" mandatory="1" type="Double" size="17"/>
+							<parameter order="2" name="currency" mandatory="1" type="String" size="3"/>
+						</dto>
+						<dto order="3" name="period" mandatory="1" package="com.bbva.rbvd.dto.insrncsale.policy.PaymentPeriodDTO" artifactId="RBVDC201">
+							<parameter order="1" name="id" mandatory="1" type="String" size="20"/>
+						</dto>
+					</dto>
+				</list>
+				<list order="4" name="coverages" mandatory="0">
+					<dto order="1" name="Type" mandatory="0" package="com.bbva.rbvd.dto.insrncsale.events.CoverageCreatedInsrcEventDTO" artifactId="RBVDC201">
+						<parameter order="1" name="id" mandatory="1" type="String" size="6"/>
+						<parameter order="2" name="name" mandatory="0" type="String" size="1000"/>
+						<dto order="3" name="coverageType" mandatory="1" package="com.bbva.rbvd.dto.insrncsale.policy.CoverageTypeDTO" artifactId="RBVDC201">
+							<parameter order="1" name="id" mandatory="1" type="String" size="15"/>
+							<parameter order="2" name="name" mandatory="0" type="String" size="15"/>
+						</dto>
+						<dto order="4" name="coverageFees" mandatory="0" package="com.bbva.rbvd.dto.insrncsale.events.CoverageFeeCreatedInsrcEventDTO" artifactId="RBVDC201">
+							<dto order="1" name="paymentAmount" mandatory="1" package="com.bbva.rbvd.dto.insrncsale.commons.PaymentAmountDTO" artifactId="RBVDC201">
+								<parameter order="1" name="amount" mandatory="1" type="Double" size="17"/>
+								<parameter order="2" name="currency" mandatory="1" type="String" size="3"/>
+							</dto>
+							<parameter order="2" name="percentageValue" mandatory="1" type="Long" size="3"/>
+							<dto order="3" name="unit" mandatory="0" package="com.bbva.rbvd.dto.insrncsale.offer.UnitDTO" artifactId="RBVDC201">
+								<parameter order="1" name="unitType" mandatory="1" type="String" size="10"/>
+								<parameter order="2" name="text" mandatory="0" type="String" size="50"/>
+								<parameter order="3" name="amount" mandatory="0" type="Double" size="17"/>
+								<parameter order="4" name="currency" mandatory="0" type="String" size="3"/>
+							</dto>
+						</dto>
+						<dto order="5" name="coverageGroup" mandatory="0" package="com.bbva.rbvd.dto.insrncsale.policy.CoverageGroupDTO" artifactId="RBVDC201">
+							<parameter order="1" name="id" mandatory="1" type="String" size="5"/>
+							<parameter order="2" name="name" mandatory="0" type="String" size="1000"/>
+							<parameter order="3" name="description" mandatory="0" type="String" size="1000"/>
+						</dto>
+					</dto>
+				</list>
+			</dto>
+		</dto>
+	</paramsIn>
+	<paramsOut/>
+	<description>Trx to report that a insurance was created</description>
+</transaction>

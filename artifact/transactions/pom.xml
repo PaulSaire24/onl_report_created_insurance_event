@@ -12,5 +12,7 @@
 	<version>0.1.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>TRANSACTIONS-onl_report_created_insurance_event</name>
-	<modules/>
+	<modules>
+		<module>RBVDT211-01-PE</module>
+	</modules>
 </project>
