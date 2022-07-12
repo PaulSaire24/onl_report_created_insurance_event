@@ -4,6 +4,6 @@ import com.bbva.rbvd.dto.insrncsale.events.CreatedInsrcEventDTO;
 
 public interface RBVDR211 {
 
-	Boolean executeCreatedInsrcEvntBusinessLogic(CreatedInsrcEventDTO createdInsrcEventDTO);
+	Boolean executeCreatedInsrcEvent(CreatedInsrcEventDTO createdInsrcEventDTO);
 
 }

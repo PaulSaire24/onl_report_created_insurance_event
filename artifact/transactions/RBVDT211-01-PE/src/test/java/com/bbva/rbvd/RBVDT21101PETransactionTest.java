@@ -70,14 +70,14 @@ public class RBVDT21101PETransactionTest {
 
 	@Test
 	public void testTrue() {
-		when(this.rbvdR211.executeCreatedInsrcEvntBusinessLogic(anyObject())).
+		when(this.rbvdR211.executeCreatedInsrcEvent(anyObject())).
 				thenReturn(true);
 		this.transaction.execute();
 	}
 
 	@Test
 	public void testFalse() {
-		when(this.rbvdR211.executeCreatedInsrcEvntBusinessLogic(anyObject())).
+		when(this.rbvdR211.executeCreatedInsrcEvent(anyObject())).
 				thenReturn(false);
 		this.transaction.execute();
 	}

@@ -1,0 +1,86 @@
+{
+	"headers": {
+		"logical-transaction-code": "RBVDT211",
+		"version-code": "01",
+		"country-code": "PE"
+	},
+	"body": {
+		"quotationId": "",
+		"operationDate": "",
+		"validityPeriod": {
+			"startDate": "",
+			"endDate": ""
+		},
+		"holder": {
+			"id": "",
+			"identityDocument": {
+				"documentType": {
+					"id": ""
+				},
+				"documentNumber": ""
+			},
+			"contactDetails": [
+				{
+					"id": "",
+					"contact": {
+						"contactType": "",
+						"value": ""
+					}
+				}
+			]
+		},
+		"product": {
+			"id": "",
+			"plan": {
+				"id": "",
+				"totalInstallment": {
+					"amount": 0,
+					"currency": "",
+					"period": {
+						"id": ""
+					}
+				},
+				"installmentPlans": [
+					{
+						"paymentsTotalNumber": 0,
+						"paymentAmount": {
+							"amount": 0,
+							"currency": ""
+						},
+						"period": {
+							"id": ""
+						}
+					}
+				],
+				"coverages": [
+					{
+						"id": "",
+						"name": "",
+						"coverageType": {
+							"id": "",
+							"name": ""
+						},
+						"coverageFees": {
+							"paymentAmount": {
+								"amount": 0,
+								"currency": ""
+							},
+							"percentageValue": 0,
+							"unit": {
+								"unitType": "",
+								"text": "",
+								"amount": 0,
+								"currency": ""
+							}
+						},
+						"coverageGroup": {
+							"id": "",
+							"name": "",
+							"description": ""
+						}
+					}
+				]
+			}
+		}
+	}
+}
