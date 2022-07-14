@@ -13,7 +13,7 @@
 	<packaging>pom</packaging>
 	<name>LIBRARIES-onl_report_created_insurance_event</name>
 	<modules>
-		<module>RBVDR211</module>
-		<module>RBVDR211IMPL</module>
+		<module>RBVDR221</module>
+		<module>RBVDR221IMPL</module>
 	</modules>
 </project>

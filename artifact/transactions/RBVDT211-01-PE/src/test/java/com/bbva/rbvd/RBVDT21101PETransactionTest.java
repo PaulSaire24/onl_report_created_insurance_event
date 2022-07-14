@@ -2,6 +2,7 @@ package com.bbva.rbvd;
 
 import com.bbva.elara.domain.transaction.Context;
 import com.bbva.elara.domain.transaction.TransactionParameter;
+
 import com.bbva.elara.domain.transaction.request.TransactionRequest;
 import com.bbva.elara.domain.transaction.request.body.CommonRequestBody;
 import com.bbva.elara.domain.transaction.request.header.CommonRequestHeader;
@@ -11,7 +12,8 @@ import com.bbva.elara.test.osgi.DummyBundleContext;
 import java.util.ArrayList;
 import java.util.Calendar;
 
-import com.bbva.rbvd.lib.r211.RBVDR211;
+import com.bbva.rbvd.lib.r221.RBVDR221;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,6 +22,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -39,7 +42,7 @@ public class RBVDT21101PETransactionTest {
 	private DummyBundleContext bundleContext;
 
 	@Autowired
-	private RBVDR211 rbvdR211;
+	private RBVDR221 rbvdR221;
 
 	@Mock
 	private CommonRequestHeader header;
@@ -70,14 +73,14 @@ public class RBVDT21101PETransactionTest {
 
 	@Test
 	public void testTrue() {
-		when(this.rbvdR211.executeCreatedInsrcEvent(anyObject())).
+		when(this.rbvdR221.executeCreatedInsrcEvent(anyObject())).
 				thenReturn(true);
 		this.transaction.execute();
 	}
 
 	@Test
 	public void testFalse() {
-		when(this.rbvdR211.executeCreatedInsrcEvent(anyObject())).
+		when(this.rbvdR221.executeCreatedInsrcEvent(anyObject())).
 				thenReturn(false);
 		this.transaction.execute();
 	}

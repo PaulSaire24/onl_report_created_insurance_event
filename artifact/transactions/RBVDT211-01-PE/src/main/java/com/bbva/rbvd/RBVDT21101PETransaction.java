@@ -1,8 +1,11 @@
 package com.bbva.rbvd;
 
+import com.bbva.rbvd.lib.r221.RBVDR221;
+
 import com.bbva.elara.domain.transaction.RequestHeaderParamsName;
-import com.bbva.rbvd.lib.r211.RBVDR211;
+
 import com.bbva.rbvd.dto.insrncsale.events.CreatedInsrcEventDTO;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,9 +16,9 @@ public class RBVDT21101PETransaction extends AbstractRBVDT21101PETransaction {
 	@Override
 	public void execute() {
 
-		LOGGER.info("***** RBVDT21101PETransaction - START *****");
+		RBVDR221 rbvdR221 = this.getServiceLibrary(RBVDR221.class);
 
-		RBVDR211 rbvdR211 = this.getServiceLibrary(RBVDR211.class);
+		LOGGER.info("***** RBVDT21101PETransaction - START *****");
 
 		CreatedInsrcEventDTO createdInsrcEventDTO = new CreatedInsrcEventDTO();
 		createdInsrcEventDTO.setQuotationId(this.getQuotationid());
@@ -28,7 +31,7 @@ public class RBVDT21101PETransaction extends AbstractRBVDT21101PETransaction {
 
 		createdInsrcEventDTO.setAap(aap);
 
-		Boolean successed = rbvdR211.executeCreatedInsrcEvent(createdInsrcEventDTO);
+		Boolean successed = rbvdR221.executeCreatedInsrcEvent(createdInsrcEventDTO);
 
 		if(successed) {
 			LOGGER.info("***** CREATED INSURANCE EVENT WAS SUCCESSED *****");
