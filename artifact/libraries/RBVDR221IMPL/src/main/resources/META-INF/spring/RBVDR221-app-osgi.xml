@@ -2,4 +2,5 @@
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:osgi="http://www.springframework.org/schema/osgi" xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/osgi http://www.springframework.org/schema/osgi/spring-osgi.xsd">
 	<osgi:reference id="pisdR012" interface="com.bbva.pisd.lib.r012.PISDR012"/>
+	<osgi:reference id="pisdR021" interface="com.bbva.pisd.lib.r021.PISDR021"/>
 </beans>

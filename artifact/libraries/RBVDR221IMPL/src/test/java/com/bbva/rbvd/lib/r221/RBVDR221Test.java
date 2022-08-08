@@ -5,8 +5,7 @@ import com.bbva.elara.domain.transaction.ThreadContext;
 
 import com.bbva.pisd.lib.r012.PISDR012;
 
-import com.bbva.rbvd.dto.insrncsale.events.CreatedInsrcEventDTO;
-
+import com.bbva.rbvd.dto.insrncsale.events.CreatedInsuranceDTO;
 import com.bbva.rbvd.lib.r221.impl.RBVDR221Impl;
 
 import com.bbva.rbvd.lib.r221.impl.util.HttpClient;
@@ -64,7 +63,7 @@ public class RBVDR221Test {
 
 		when(httpClient.executeGifoleService(anyObject())).thenReturn(201);
 
-		Boolean validation = rbvdr221.executeCreatedInsrcEvent(new CreatedInsrcEventDTO());
+		Boolean validation = rbvdr221.executeCreatedInsrcEvent(new CreatedInsuranceDTO());
 		assertTrue(validation);
 	}
 	

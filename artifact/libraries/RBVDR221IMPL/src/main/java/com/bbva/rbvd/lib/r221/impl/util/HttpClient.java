@@ -1,10 +1,8 @@
 package com.bbva.rbvd.lib.r221.impl.util;
 
-import com.bbva.elara.configuration.manager.application.ApplicationConfigurationService;
-
 import com.bbva.elara.utility.api.connector.APIConnector;
-import com.bbva.elara.utility.api.connector.APIConnectorBuilder;
 
+import com.bbva.pisd.dto.insurance.aso.email.CreateEmailASO;
 import com.bbva.pisd.dto.insurance.aso.gifole.GifoleInsuranceRequestASO;
 
 import com.bbva.pisd.dto.insurance.utils.PISDProperties;
@@ -31,11 +29,7 @@ public class HttpClient {
 
     private final Gson gson;
 
-    private ApplicationConfigurationService applicationConfigurationService;
-
     private APIConnector internalApiConnector;
-
-    private APIConnectorBuilder apiConnectorBuilder;
 
     public HttpClient() {
         gson = new GsonBuilder().create();
@@ -64,6 +58,29 @@ public class HttpClient {
 
     }
 
+    public Integer executeMailSendService(CreateEmailASO emailRequest) {
+        LOGGER.info("***** HttpClient - executeMailSendService START *****");
+
+        String json = this.gson.toJson(emailRequest);
+
+        LOGGER.info("***** HttpClient - executeMailSendService ***** Request body: {}", json);
+
+        HttpEntity<String> entity = new HttpEntity<>(json, createHttpHeaders());
+
+        try {
+            ResponseEntity<Void> response = this.internalApiConnector.exchange(PISDProperties.ID_API_NOTIFICATIONS_GATEWAY_CREATE_EMAIL_SERVICE.getValue(),
+                    HttpMethod.POST, entity, Void.class);
+            Integer httpStatus = response.getStatusCode().value();
+            LOGGER.info("***** HttpClient - executeMailSendService ***** Http status code: {}", httpStatus);
+            LOGGER.info("***** HttpClient - executeMailSendService END *****");
+            return httpStatus;
+        } catch (RestClientException ex) {
+            LOGGER.debug("***** HttpClient - executeMailSendService ***** Something went wrong: {} !!!", ex.getMessage());
+            return null;
+        }
+
+    }
+
     private HttpHeaders createHttpHeaders() {
         HttpHeaders headers = new HttpHeaders();
         MediaType mediaType = new MediaType("application","json", StandardCharsets.UTF_8);
@@ -71,16 +88,8 @@ public class HttpClient {
         return headers;
     }
 
-    public void setApplicationConfigurationService(ApplicationConfigurationService applicationConfigurationService) {
-        this.applicationConfigurationService = applicationConfigurationService;
-    }
-
     public void setInternalApiConnector(APIConnector internalApiConnector) {
         this.internalApiConnector = internalApiConnector;
-    }
-
-    public void setApiConnectorBuilder(APIConnectorBuilder apiConnectorBuilder) {
-        this.apiConnectorBuilder = apiConnectorBuilder;
     }
 
 }

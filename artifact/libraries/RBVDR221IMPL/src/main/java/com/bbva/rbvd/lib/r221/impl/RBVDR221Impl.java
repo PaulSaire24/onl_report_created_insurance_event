@@ -1,5 +1,6 @@
 package com.bbva.rbvd.lib.r221.impl;
 
+import com.bbva.pisd.dto.insurance.aso.email.CreateEmailASO;
 import com.bbva.pisd.dto.insurance.aso.gifole.GifoleInsuranceRequestASO;
 
 import com.bbva.pisd.dto.insurance.utils.PISDProperties;
@@ -7,8 +8,7 @@ import com.bbva.pisd.dto.insurance.utils.PISDProperties;
 import com.bbva.rbvd.dto.insrncsale.dao.CreatedInsrcEventDAO;
 import com.bbva.rbvd.dto.insrncsale.dao.RequiredFieldsEmissionDAO;
 
-import com.bbva.rbvd.dto.insrncsale.events.CreatedInsrcEventDTO;
-
+import com.bbva.rbvd.dto.insrncsale.events.CreatedInsuranceDTO;
 import com.bbva.rbvd.dto.insrncsale.utils.RBVDProperties;
 
 import org.slf4j.Logger;
@@ -23,21 +23,25 @@ public class RBVDR221Impl extends RBVDR221Abstract {
 	private static final Logger LOGGER = LoggerFactory.getLogger(RBVDR221Impl.class);
 
 	@Override
-	public Boolean executeCreatedInsrcEvent(CreatedInsrcEventDTO createdInsrcEventDTO) {
+	public Boolean executeCreatedInsrcEvent(CreatedInsuranceDTO createdInsuranceDTO) {
 		LOGGER.info("***** RBVDR221Impl - executeCreatedInsrcEvntBusinessLogic START *****");
 
-		Map<String, Object> responseGetEmissionRequiredFields = this.pisdR012.executeGetRequiredFieldsForEmissionService(createdInsrcEventDTO.getQuotationId());
+		Map<String, Object> responseGetEmissionRequiredFields = this.pisdR012.executeGetRequiredFieldsForEmissionService(createdInsuranceDTO.getQuotationId());
 
 		RequiredFieldsEmissionDAO emissionDAO = buildEmissionRequiredFieldsDAO(responseGetEmissionRequiredFields);
 
 		Map<String, Object> responseGetCreatedInsrcEvntRequiredFields = this.pisdR012.
-				executeGetRequiredFieldsForCreatedInsrcEvnt(createdInsrcEventDTO.getQuotationId());
+				executeGetRequiredFieldsForCreatedInsrcEvnt(createdInsuranceDTO.getQuotationId());
 
 		CreatedInsrcEventDAO createdInsrcEventDAO = buildCreatedInsrcEvntRequiredFieldsDAO(responseGetCreatedInsrcEvntRequiredFields);
 
-		GifoleInsuranceRequestASO gifoleRequest = this.mapperHelper.createGifoleServiceRequest(createdInsrcEventDTO, createdInsrcEventDAO, emissionDAO);
+		GifoleInsuranceRequestASO gifoleRequest = this.mapperHelper.createGifoleServiceRequest(createdInsuranceDTO, createdInsrcEventDAO, emissionDAO);
 
-		Integer gifoleHttpStatus = this.httpClient.executeGifoleService(gifoleRequest);
+		this.httpClient.executeGifoleService(gifoleRequest);
+
+		CreateEmailASO emailRequest = this.mapperHelper.createEmailServiceRequest(createdInsuranceDTO, emissionDAO, createdInsrcEventDAO);
+
+		this.httpClient.executeMailSendService(emailRequest);
 
 		LOGGER.info("***** RBVDR221Impl - executeCreatedInsrcEvntBusinessLogic END *****");
 

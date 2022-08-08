@@ -3,15 +3,12 @@
 		http://www.springframework.org/schema/osgi http://www.springframework.org/schema/osgi/spring-osgi.xsd">
 	<import resource="classpath:/spring/elara-aspect.xml"/>
 	<bean id="rbvdR221Abstract" abstract="true" class="com.bbva.rbvd.lib.r221.impl.RBVDR221Abstract">
-		<property name="applicationConfigurationService" ref="applicationConfigurationService"/>
 		<property name="internalApiConnector" ref="internalApiConnector"/>
 		<property name="apiConnectorBuilder" ref="apiConnectorBuilder"/>
 		<property name="httpClient" ref="httpClient" />
 	</bean>
 	<bean id="httpClient" class="com.bbva.rbvd.lib.r221.impl.util.HttpClient">
-		<property name="applicationConfigurationService" ref="applicationConfigurationService"/>
 		<property name="internalApiConnector" ref="internalApiConnector"/>
-		<property name="apiConnectorBuilder" ref="apiConnectorBuilder"/>
 	</bean>
 	<bean id="applicationConfigurationService" factory-bean="applicationConfigurationServiceFactory" factory-method="getApplicationConfigurationService">
 		<constructor-arg type="org.osgi.framework.BundleContext" ref="bundleContext"/>

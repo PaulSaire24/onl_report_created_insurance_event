@@ -1,6 +1,7 @@
 package com.bbva.rbvd;
 
 import com.bbva.elara.domain.transaction.Context;
+import com.bbva.elara.domain.transaction.RequestHeaderParamsName;
 import com.bbva.elara.domain.transaction.TransactionParameter;
 
 import com.bbva.elara.domain.transaction.request.TransactionRequest;
@@ -12,6 +13,7 @@ import com.bbva.elara.test.osgi.DummyBundleContext;
 import java.util.ArrayList;
 import java.util.Calendar;
 
+import com.bbva.rbvd.dto.insrncsale.events.CreatedInsuranceDTO;
 import com.bbva.rbvd.lib.r221.RBVDR221;
 
 import org.junit.Before;
@@ -63,9 +65,9 @@ public class RBVDT21101PETransactionTest {
 
 		this.transactionRequest.setBody(commonRequestBody);
 
-		Calendar operationDate = Calendar.getInstance();
+		when(this.header.getHeaderParameter(RequestHeaderParamsName.AAP)).thenReturn("13000004");
 
-		addParameter("operationDate", operationDate);
+		addParameter("createdInsurance", new CreatedInsuranceDTO());
 
 		this.transactionRequest.setHeader(header);
 		this.transaction.getContext().setTransactionRequest(transactionRequest);

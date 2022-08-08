@@ -1,10 +1,8 @@
 package com.bbva.rbvd;
 
 import com.bbva.elara.transaction.AbstractTransaction;
-import com.bbva.rbvd.dto.insrncsale.commons.HolderDTO;
-import com.bbva.rbvd.dto.insrncsale.commons.ValidityPeriodDTO;
-import com.bbva.rbvd.dto.insrncsale.events.ProductCreatedInsrcEventDTO;
-import java.util.Calendar;
+import com.bbva.rbvd.dto.insrncsale.events.CreatedInsuranceDTO;
+import com.bbva.rbvd.dto.insrncsale.events.header.HeaderDTO;
 
 /**
  * In this class, the input and output data is defined automatically through the setters and getters.
@@ -14,39 +12,17 @@ public abstract class AbstractRBVDT21101PETransaction extends AbstractTransactio
 	public AbstractRBVDT21101PETransaction(){
 	}
 
-
 	/**
-	 * Return value for input parameter quotationId
+	 * Return value for input parameter header
 	 */
-	protected String getQuotationid(){
-		return (String)this.getParameter("quotationId");
+	protected HeaderDTO getHeader(){
+		return (HeaderDTO)this.getParameter("header");
 	}
 
 	/**
-	 * Return value for input parameter operationDate
+	 * Return value for input parameter createdInsurance
 	 */
-	protected Calendar getOperationdate(){
-		return (Calendar)this.getParameter("operationDate");
-	}
-
-	/**
-	 * Return value for input parameter validityPeriod
-	 */
-	protected ValidityPeriodDTO getValidityperiod(){
-		return (ValidityPeriodDTO)this.getParameter("validityPeriod");
-	}
-
-	/**
-	 * Return value for input parameter holder
-	 */
-	protected HolderDTO getHolder(){
-		return (HolderDTO)this.getParameter("holder");
-	}
-
-	/**
-	 * Return value for input parameter product
-	 */
-	protected ProductCreatedInsrcEventDTO getProduct(){
-		return (ProductCreatedInsrcEventDTO)this.getParameter("product");
+	protected CreatedInsuranceDTO getCreatedinsurance(){
+		return (CreatedInsuranceDTO)this.getParameter("createdInsurance");
 	}
 }

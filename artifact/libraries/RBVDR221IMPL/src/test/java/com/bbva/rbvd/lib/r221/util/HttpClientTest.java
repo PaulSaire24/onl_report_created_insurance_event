@@ -2,6 +2,7 @@ package com.bbva.rbvd.lib.r221.util;
 
 import com.bbva.elara.utility.api.connector.APIConnector;
 
+import com.bbva.pisd.dto.insurance.aso.email.CreateEmailASO;
 import com.bbva.pisd.dto.insurance.aso.gifole.GifoleInsuranceRequestASO;
 
 import com.bbva.rbvd.lib.r221.factory.ApiConnectorFactoryMock;
@@ -63,4 +64,25 @@ public class HttpClientTest {
         assertNull(validation);
     }
 
+    @Test
+    public void executeMailSendServiceOK() {
+        when(internalApiConnector.exchange(anyString(), any(HttpMethod.class), anyObject(), (Class<Void>) any())).
+                thenReturn(new ResponseEntity<>(HttpStatus.OK));
+
+        Integer validation = this.httpClient.executeMailSendService(new CreateEmailASO());
+
+        Integer statusOk = 200;
+
+        assertEquals(statusOk, validation);
+    }
+
+    @Test
+    public void executeMailSendServiceWithRestClientException() {
+        when(internalApiConnector.exchange(anyString(), any(HttpMethod.class), anyObject(), (Class<Void>) any())).
+                thenThrow(new RestClientException("Something went wrong"));
+
+        Integer validation = this.httpClient.executeMailSendService(new CreateEmailASO());
+
+        assertNull(validation);
+    }
 }
