@@ -88,7 +88,8 @@ public class MapperHelperTest {
 
         when(applicationConfigurationService.getProperty(anyString())).thenReturn("INSURANCE_CREATION");
 
-        GifoleInsuranceRequestASO validation = this.mapperHelper.createGifoleServiceRequest(createdInsuranceDTO, createdInsrcEventDAO, requiredFieldsEmissionDAO);
+        GifoleInsuranceRequestASO validation = this.mapperHelper.createGifoleServiceRequest(createdInsuranceDTO, createdInsrcEventDAO, requiredFieldsEmissionDAO,
+                                            "name", "lastName");
 
         assertNotNull(validation);
 
@@ -167,7 +168,8 @@ public class MapperHelperTest {
         when(createdInsrcEventDAO.getPaymentMethodId()).thenReturn("T");
         createdInsuranceDTO.getHolder().getContactDetails().clear();
 
-        validation = this.mapperHelper.createGifoleServiceRequest(createdInsuranceDTO, createdInsrcEventDAO, requiredFieldsEmissionDAO);
+        validation = this.mapperHelper.createGifoleServiceRequest(createdInsuranceDTO, createdInsrcEventDAO, requiredFieldsEmissionDAO,
+                    "name", "lastName");
 
         assertTrue(validation.getHolder().getHasCreditCard());
         assertFalse(validation.getHolder().getHasBankAccount());
@@ -191,7 +193,7 @@ public class MapperHelperTest {
         when(requiredFieldsEmissionDAO.getVehicleCirculationType()).thenReturn("L");
         when(requiredFieldsEmissionDAO.getCommercialVehicleAmount()).thenReturn(BigDecimal.valueOf(1000));
 
-        CreateEmailASO validation = this.mapperHelper.createEmailServiceRequest(createdInsuranceDTO, requiredFieldsEmissionDAO, createdInsrcEventDAO);
+        CreateEmailASO validation = this.mapperHelper.createEmailServiceRequest(createdInsuranceDTO, requiredFieldsEmissionDAO, createdInsrcEventDAO, "");
 
         assertNotNull(validation);
         assertNotNull(validation.getApplicationId());
@@ -209,7 +211,7 @@ public class MapperHelperTest {
         when(requiredFieldsEmissionDAO.getGasConversionType()).thenReturn("N");
         when(requiredFieldsEmissionDAO.getVehicleCirculationType()).thenReturn("P");
 
-        validation = this.mapperHelper.createEmailServiceRequest(createdInsuranceDTO, requiredFieldsEmissionDAO, createdInsrcEventDAO);
+        validation = this.mapperHelper.createEmailServiceRequest(createdInsuranceDTO, requiredFieldsEmissionDAO, createdInsrcEventDAO, "");
 
         assertNotNull(validation);
 
@@ -233,7 +235,7 @@ public class MapperHelperTest {
 
         when(pisdR021.executeGetHomeRiskDirection(anyString())).thenReturn(responseQueryGetHomeRiskDirection);
 
-        CreateEmailASO validation = this.mapperHelper.createEmailServiceRequest(createdInsuranceDTO, requiredFieldsEmissionDAO, createdInsrcEventDAO);
+        CreateEmailASO validation = this.mapperHelper.createEmailServiceRequest(createdInsuranceDTO, requiredFieldsEmissionDAO, createdInsrcEventDAO, "customerName");
 
         assertNotNull(validation);
         assertNotNull(validation.getApplicationId());
@@ -252,13 +254,13 @@ public class MapperHelperTest {
         when(responseQueryGetHomeInfo.get(HomeInsuranceProperty.FIELD_EDIFICATION_LOAN_AMOUNT.getValue())).thenReturn(null);
         when(responseQueryGetHomeInfo.get(HomeInsuranceProperty.FIELD_HOUSING_ASSETS_LOAN_AMOUNT.getValue())).thenReturn(null);
 
-        validation = this.mapperHelper.createEmailServiceRequest(createdInsuranceDTO, requiredFieldsEmissionDAO, createdInsrcEventDAO);
+        validation = this.mapperHelper.createEmailServiceRequest(createdInsuranceDTO, requiredFieldsEmissionDAO, createdInsrcEventDAO, "customerName");
 
         assertNotNull(validation);
 
         createdInsuranceDTO.getProduct().getPlan().setId("05");
 
-        validation = this.mapperHelper.createEmailServiceRequest(createdInsuranceDTO, requiredFieldsEmissionDAO, createdInsrcEventDAO);
+        validation = this.mapperHelper.createEmailServiceRequest(createdInsuranceDTO, requiredFieldsEmissionDAO, createdInsrcEventDAO, "customerName");
 
         assertNotNull(validation);
     }

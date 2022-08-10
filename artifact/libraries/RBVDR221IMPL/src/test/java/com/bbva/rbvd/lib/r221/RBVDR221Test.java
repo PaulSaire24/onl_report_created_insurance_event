@@ -1,11 +1,16 @@
 package com.bbva.rbvd.lib.r221;
 
+import com.bbva.apx.exception.business.BusinessException;
 import com.bbva.elara.domain.transaction.Context;
 import com.bbva.elara.domain.transaction.ThreadContext;
 
+import com.bbva.pisd.dto.insurance.aso.CustomerListASO;
+import com.bbva.pisd.dto.insurance.bo.customer.CustomerBO;
 import com.bbva.pisd.lib.r012.PISDR012;
 
+import com.bbva.rbvd.dto.insrncsale.commons.HolderDTO;
 import com.bbva.rbvd.dto.insrncsale.events.CreatedInsuranceDTO;
+import com.bbva.rbvd.dto.insrncsale.mock.MockData;
 import com.bbva.rbvd.lib.r221.impl.RBVDR221Impl;
 
 import com.bbva.rbvd.lib.r221.impl.util.HttpClient;
@@ -21,8 +26,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.io.IOException;
+
+import static java.util.Collections.singletonList;
 import static org.junit.Assert.assertTrue;
 
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.anyObject;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -58,13 +67,47 @@ public class RBVDR221Test {
 	}
 
 	@Test
-	public void executeCreatedInsrcEvntBusinessLogic_OK(){
+	public void executeCreatedInsrcEventWithMailBusinessException() {
+		LOGGER.info("Executing RBVDR221Test - executeCreatedInsrcEventWithMailBusinessException ...");
+
+		when(this.httpClient.executeMailSendService(anyObject())).thenThrow(new BusinessException("advice", false, "message"));
+
+		CreatedInsuranceDTO createdInsuranceDTO = new CreatedInsuranceDTO();
+		createdInsuranceDTO.setHolder(new HolderDTO());
+
+		this.rbvdr221.executeCreatedInsrcEvent(createdInsuranceDTO);
+	}
+
+	@Test
+	public void executeCreatedInsrcEvntBusinessLogicWithGifoleBusinessException() {
+		LOGGER.info("Executing RBVDR221Test - executeCreatedInsrcEvntBusinessLogicWithGifoleBusinessException ...");
+
+		when(this.httpClient.executeGifoleService(anyObject())).thenThrow(new BusinessException("advice", false, "message"));
+
+		CreatedInsuranceDTO createdInsuranceDTO = new CreatedInsuranceDTO();
+		createdInsuranceDTO.setHolder(new HolderDTO());
+
+		this.rbvdr221.executeCreatedInsrcEvent(createdInsuranceDTO);
+	}
+
+	@Test
+	public void executeCreatedInsrcEvntBusinessLogic_OK() {
 		LOGGER.info("Executing RBVDR221Test - executeCreatedInsrcEvntBusinessLogic_OK ...");
 
-		when(httpClient.executeGifoleService(anyObject())).thenReturn(201);
+		CustomerListASO customerInformation = new CustomerListASO();
+		customerInformation.setData(singletonList(new CustomerBO()));
 
-		Boolean validation = rbvdr221.executeCreatedInsrcEvent(new CreatedInsuranceDTO());
-		assertTrue(validation);
+		when(this.httpClient.executeListCustomerService(anyString())).thenReturn(customerInformation.getData().get(0));
+
+		CreatedInsuranceDTO createdInsuranceDTO = new CreatedInsuranceDTO();
+		createdInsuranceDTO.setHolder(new HolderDTO());
+
+		this.rbvdr221.executeCreatedInsrcEvent(createdInsuranceDTO);
+
+		/*when(this.httpClient.executeListCustomerService(anyString())).thenReturn(null);
+
+		validation = rbvdr221.executeCreatedInsrcEvent(createdInsuranceDTO);
+		assertTrue(validation);*/
 	}
 	
 }

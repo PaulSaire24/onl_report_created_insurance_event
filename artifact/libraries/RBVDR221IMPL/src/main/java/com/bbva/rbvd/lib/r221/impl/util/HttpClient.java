@@ -1,9 +1,13 @@
 package com.bbva.rbvd.lib.r221.impl.util;
 
+import com.bbva.apx.exception.business.BusinessException;
 import com.bbva.elara.utility.api.connector.APIConnector;
 
+import com.bbva.pisd.dto.insurance.aso.CustomerListASO;
 import com.bbva.pisd.dto.insurance.aso.email.CreateEmailASO;
 import com.bbva.pisd.dto.insurance.aso.gifole.GifoleInsuranceRequestASO;
+
+import com.bbva.pisd.dto.insurance.bo.customer.CustomerBO;
 
 import com.bbva.pisd.dto.insurance.utils.PISDProperties;
 
@@ -22,6 +26,8 @@ import org.springframework.http.MediaType;
 import org.springframework.web.client.RestClientException;
 
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 
 public class HttpClient {
 
@@ -53,7 +59,7 @@ public class HttpClient {
             return httpStatus;
         } catch (RestClientException ex) {
             LOGGER.debug("***** HttpClient - executeGifoleService ***** Something went wrong: {} !!!", ex.getMessage());
-            return null;
+            throw new BusinessException("RBVD01020013", true, "CONSUMO DEL SERVICIO DE GIFOLE SIN EXITO");
         }
 
     }
@@ -76,9 +82,27 @@ public class HttpClient {
             return httpStatus;
         } catch (RestClientException ex) {
             LOGGER.debug("***** HttpClient - executeMailSendService ***** Something went wrong: {} !!!", ex.getMessage());
-            return null;
+            throw new BusinessException("RBVD01020014", true, "CONSUMO DEL SERVICIO DE ENVIO DE CORREO SIN EXITO");
         }
 
+    }
+
+    public CustomerBO executeListCustomerService(String customerId) {
+        LOGGER.info("***** HttpClient - executeListCustomerService START *****");
+
+        Map<String, String> pathParams = new HashMap<>();
+        pathParams.put("customerId", customerId);
+
+        try {
+            CustomerListASO customerInformationASO = this.internalApiConnector.getForObject(PISDProperties.ID_API_CUSTOMER_INFORMATION.getValue(),
+                    CustomerListASO.class, pathParams);
+            CustomerBO customerInformation = customerInformationASO.getData().get(0);
+            LOGGER.info("***** HttpClient - executeListCustomerService END *****");
+            return customerInformation;
+        } catch (RestClientException ex) {
+            LOGGER.info("***** HttpClient - executeListCustomerService ***** Something went wrong: {} !!!", ex.getMessage());
+            return null;
+        }
     }
 
     private HttpHeaders createHttpHeaders() {

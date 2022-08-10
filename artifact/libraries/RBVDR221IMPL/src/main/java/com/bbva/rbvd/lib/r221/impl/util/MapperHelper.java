@@ -65,7 +65,7 @@ public class MapperHelper {
     private PISDR021 pisdR021;
 
     public GifoleInsuranceRequestASO createGifoleServiceRequest(CreatedInsuranceDTO createdInsuranceDTO, CreatedInsrcEventDAO createdInsrcEventDAO,
-                                                                RequiredFieldsEmissionDAO emissionDAO) {
+                                                                RequiredFieldsEmissionDAO emissionDAO, String name, String lastName) {
         GifoleInsuranceRequestASO gifoleRequest = new GifoleInsuranceRequestASO();
 
         QuotationASO quotation = new QuotationASO();
@@ -90,8 +90,8 @@ public class MapperHelper {
         gifoleRequest.setValidityPeriod(validityPeriod);
 
         HolderASO holder = new HolderASO();
-        holder.setFirstName("NOMBRE DEL CLIENTE - BD");
-        holder.setLastName("APELLIDO DEL CLIENTE - BD");
+        holder.setFirstName(name);
+        holder.setLastName(lastName);
 
         holder.setIsBankCustomer(true);
         holder.setIsDataTreatment(true);
@@ -199,8 +199,8 @@ public class MapperHelper {
         return gifoleRequest;
     }
 
-    public CreateEmailASO createEmailServiceRequest(CreatedInsuranceDTO requestBody,
-                                                    RequiredFieldsEmissionDAO emissionDao, CreatedInsrcEventDAO createdInsrcEventDao) {
+    public CreateEmailASO createEmailServiceRequest(CreatedInsuranceDTO requestBody, RequiredFieldsEmissionDAO emissionDao,
+                                                    CreatedInsrcEventDAO createdInsrcEventDao, String customerName) {
 
         CreateEmailASO createEmailASO = null;
 
@@ -215,7 +215,7 @@ public class MapperHelper {
             SimltInsuredHousingDAO simltInsuredHousingDAO = buildSimltInsuredHousingDAO(responseQueryGetHomeInfo);
             String riskDirection = (String) responseQueryGetHomeRiskDirection.get(HomeInsuranceProperty.FIELD_LEGAL_ADDRESS_DESC.getValue());
 
-            createEmailASO = buildHomeEmailRequest(requestBody, emissionDao, createdInsrcEventDao, simltInsuredHousingDAO, riskDirection);
+            createEmailASO = buildHomeEmailRequest(requestBody, emissionDao, createdInsrcEventDao, simltInsuredHousingDAO, customerName, riskDirection);
         }
         return createEmailASO;
     }
@@ -256,7 +256,7 @@ public class MapperHelper {
         BigDecimal monthlyPay = valueOf(requestBody.getProduct().getPlan().getInstallmentPlans().get(0).getPaymentAmount().getAmount());
 
         bodyData[11] = "US$".concat(" ").concat(numberFormat.format(monthlyPay));
-        bodyData[12] = emissionDao.getPaymentFrequencyName();
+        bodyData[12] = createdInsrcEventDao.getPeriodName();
 
         return bodyData;
     }
@@ -303,7 +303,9 @@ public class MapperHelper {
         return emissionDao;
     }
 
-    private CreateEmailASO buildHomeEmailRequest(CreatedInsuranceDTO requestBody, RequiredFieldsEmissionDAO emissionDao, CreatedInsrcEventDAO createdInsrcEventDao, SimltInsuredHousingDAO simltInsuredHousingDAO, String riskDirection) {
+    private CreateEmailASO buildHomeEmailRequest(CreatedInsuranceDTO requestBody, RequiredFieldsEmissionDAO emissionDao,
+                                                 CreatedInsrcEventDAO createdInsrcEventDao, SimltInsuredHousingDAO simltInsuredHousingDAO,
+                                                 String customerName, String riskDirection) {
         String homeLayoutCode = "PLT00968";
 
         CreateEmailASO homeEmail = new CreateEmailASO();
@@ -311,7 +313,7 @@ public class MapperHelper {
         homeEmail.setRecipient("0,".concat(requestBody.getHolder().getContactDetails().get(0).getContact().getValue()));
         homeEmail.setSubject("!Genial! Acabas de comprar tu Seguro Hogar Total con éxito");
 
-        String[] data = this.getMailBodyDataHome(requestBody, emissionDao, createdInsrcEventDao, simltInsuredHousingDAO, riskDirection);
+        String[] data = this.getMailBodyDataHome(requestBody, emissionDao, createdInsrcEventDao, simltInsuredHousingDAO, customerName, riskDirection);
 
         homeEmail.setBody(this.getMailBodyHome(data, homeLayoutCode));
         homeEmail.setSender(MAIL_SENDER);
@@ -321,7 +323,7 @@ public class MapperHelper {
 
     private String[] getMailBodyDataHome(CreatedInsuranceDTO requestBody, RequiredFieldsEmissionDAO emissionDao,
                                          CreatedInsrcEventDAO createdInsrcEventDao, SimltInsuredHousingDAO simltInsuredHousingDAO,
-                                         String riskDirection) {
+                                         String customerName, String riskDirection) {
         String[] bodyData = new String[18];
 
         String noneValue = "none";
@@ -331,11 +333,11 @@ public class MapperHelper {
         String planId = requestBody.getProduct().getPlan().getId();
 
         if("P".equals(customerType)) {
-            bodyData[0] = "Juan Fulano Sultano";
+            bodyData[0] = customerName;
             bodyData[1] = " de tu inmueble";
             bodyData[3] = "";
         } else {
-            bodyData[0] = "Juan Fulano Sultano";
+            bodyData[0] = customerName;
             bodyData[1] = " del inmueble que alquilas";
             bodyData[3] = noneValue;
         }
@@ -372,7 +374,7 @@ public class MapperHelper {
         bodyData[12] = getContractNumber(createdInsrcEventDao.getContractNumber());
         bodyData[13] = createdInsrcEventDao.getRimacPolicy();
         bodyData[14] = numberFormat.format(requestBody.getProduct().getPlan().getInstallmentPlans().get(0).getPaymentAmount().getAmount());
-        bodyData[15] = emissionDao.getPaymentFrequencyName();
+        bodyData[15] = createdInsrcEventDao.getPeriodName();
         bodyData[16] = emissionDao.getInsuranceModalityName();
         bodyData[17] = riskDirection;
 

@@ -28,14 +28,7 @@ public class RBVDT21101PETransaction extends AbstractRBVDT21101PETransaction {
 
 		CreatedInsrcEventDTO createdInsrcEventDTO = new CreatedInsrcEventDTO(createdInsuranceDTO, this.getHeader());
 
-		Boolean successed = rbvdR221.executeCreatedInsrcEvent(createdInsrcEventDTO.getCreatedInsurance());
-
-		if(successed) {
-			LOGGER.info("***** CREATED INSURANCE EVENT WAS SUCCESSED *****");
-		} else {
-			LOGGER.info("***** CREATED INSURANCE EVENT WASN'T SUCCESSED *****");
-		}
-
+		rbvdR221.executeCreatedInsrcEvent(createdInsrcEventDTO.getCreatedInsurance());
 	}
 
 }

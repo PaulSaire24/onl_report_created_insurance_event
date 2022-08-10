@@ -1,8 +1,10 @@
 package com.bbva.rbvd.lib.r221.impl;
 
+import com.bbva.apx.exception.business.BusinessException;
 import com.bbva.pisd.dto.insurance.aso.email.CreateEmailASO;
 import com.bbva.pisd.dto.insurance.aso.gifole.GifoleInsuranceRequestASO;
 
+import com.bbva.pisd.dto.insurance.bo.customer.CustomerBO;
 import com.bbva.pisd.dto.insurance.utils.PISDProperties;
 
 import com.bbva.rbvd.dto.insrncsale.dao.CreatedInsrcEventDAO;
@@ -18,34 +20,65 @@ import java.math.BigDecimal;
 
 import java.util.Map;
 
+import static com.google.common.base.Strings.nullToEmpty;
+import static java.util.Objects.nonNull;
+
 public class RBVDR221Impl extends RBVDR221Abstract {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(RBVDR221Impl.class);
 
 	@Override
-	public Boolean executeCreatedInsrcEvent(CreatedInsuranceDTO createdInsuranceDTO) {
+	public void executeCreatedInsrcEvent(CreatedInsuranceDTO createdInsuranceDTO) {
 		LOGGER.info("***** RBVDR221Impl - executeCreatedInsrcEvntBusinessLogic START *****");
 
+		LOGGER.info("***** RBVDR221Impl - executeCreatedInsrcEvntBusinessLogic ***** Executing PISDR012 executeGetRequiredFieldsForEmissionService method");
 		Map<String, Object> responseGetEmissionRequiredFields = this.pisdR012.executeGetRequiredFieldsForEmissionService(createdInsuranceDTO.getQuotationId());
 
 		RequiredFieldsEmissionDAO emissionDAO = buildEmissionRequiredFieldsDAO(responseGetEmissionRequiredFields);
 
+		LOGGER.info("***** RBVDR221Impl - executeCreatedInsrcEvntBusinessLogic ***** Executing PISDR012 executeGetRequiredFieldsForCreatedInsrcEvnt method");
 		Map<String, Object> responseGetCreatedInsrcEvntRequiredFields = this.pisdR012.
 				executeGetRequiredFieldsForCreatedInsrcEvnt(createdInsuranceDTO.getQuotationId());
 
 		CreatedInsrcEventDAO createdInsrcEventDAO = buildCreatedInsrcEvntRequiredFieldsDAO(responseGetCreatedInsrcEvntRequiredFields);
 
-		GifoleInsuranceRequestASO gifoleRequest = this.mapperHelper.createGifoleServiceRequest(createdInsuranceDTO, createdInsrcEventDAO, emissionDAO);
+		CustomerBO customerInformation = this.httpClient.executeListCustomerService(createdInsuranceDTO.getHolder().getId());
 
-		this.httpClient.executeGifoleService(gifoleRequest);
+		String name = "";
 
-		CreateEmailASO emailRequest = this.mapperHelper.createEmailServiceRequest(createdInsuranceDTO, emissionDAO, createdInsrcEventDAO);
+		String lastName = "";
 
-		this.httpClient.executeMailSendService(emailRequest);
+		String fullName = "N/A";
+
+		if(nonNull(customerInformation)) {
+			name = nullToEmpty(customerInformation.getFirstName());
+			lastName = nullToEmpty(customerInformation.getLastName()) + " " + nullToEmpty(customerInformation.getSecondLastName());
+			fullName = name + " " + lastName;
+			fullName = fullName.replace("#", "Ñ");
+		}
+
+		LOGGER.info("***** RBVDR221Impl - executeCreatedInsrcEvntBusinessLogic ***** Building CreateEmailASO object");
+		CreateEmailASO emailRequest = this.mapperHelper.createEmailServiceRequest(createdInsuranceDTO, emissionDAO, createdInsrcEventDAO, fullName);
+
+		try {
+			this.httpClient.executeMailSendService(emailRequest);
+		} catch (BusinessException ex) {
+			this.addAdviceWithDescription(ex.getAdviceCode(), ex.getMessage());
+			return;
+		}
+
+		LOGGER.info("***** RBVDR221Impl - executeCreatedInsrcEvntBusinessLogic ***** Building GifoleInsuranceRequestASO object");
+		GifoleInsuranceRequestASO gifoleRequest = this.mapperHelper.createGifoleServiceRequest(createdInsuranceDTO, createdInsrcEventDAO,
+														emissionDAO, name, lastName);
+
+		try {
+			this.httpClient.executeGifoleService(gifoleRequest);
+		} catch (BusinessException ex) {
+			this.addAdviceWithDescription(ex.getAdviceCode(), ex.getMessage());
+			return;
+		}
 
 		LOGGER.info("***** RBVDR221Impl - executeCreatedInsrcEvntBusinessLogic END *****");
-
-		return true;
 	}
 
 	private RequiredFieldsEmissionDAO buildEmissionRequiredFieldsDAO(Map<String, Object> responseGetRequiredFields) {
