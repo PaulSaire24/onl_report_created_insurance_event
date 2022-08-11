@@ -14,6 +14,8 @@ import java.util.ArrayList;
 
 import com.bbva.rbvd.dto.insrncsale.events.CreatedInsuranceDTO;
 
+import com.bbva.rbvd.lib.r221.RBVDR221;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,6 +29,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.anyObject;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
@@ -39,6 +42,9 @@ public class RBVDT21101PETransactionTest {
 
 	@Autowired
 	private DummyBundleContext bundleContext;
+
+	@Autowired
+	private RBVDR221 rbvdR221;
 
 	@Mock
 	private CommonRequestHeader header;
@@ -68,7 +74,16 @@ public class RBVDT21101PETransactionTest {
 	}
 
 	@Test
-	public void fullTest() {
+	public void testTrue() {
+		when(this.rbvdR221.executeCreatedInsrcEvent(anyObject())).
+				thenReturn(true);
+		this.transaction.execute();
+	}
+
+	@Test
+	public void testFalse() {
+		when(this.rbvdR221.executeCreatedInsrcEvent(anyObject())).
+				thenReturn(false);
 		this.transaction.execute();
 	}
 

@@ -1,6 +1,7 @@
 package com.bbva.rbvd;
 
 import com.bbva.elara.domain.transaction.RequestHeaderParamsName;
+import com.bbva.elara.domain.transaction.Severity;
 import com.bbva.rbvd.dto.insrncsale.events.CreatedInsuranceDTO;
 import com.bbva.rbvd.lib.r221.RBVDR221;
 
@@ -28,7 +29,15 @@ public class RBVDT21101PETransaction extends AbstractRBVDT21101PETransaction {
 
 		CreatedInsrcEventDTO createdInsrcEventDTO = new CreatedInsrcEventDTO(createdInsuranceDTO, this.getHeader());
 
-		rbvdR221.executeCreatedInsrcEvent(createdInsrcEventDTO.getCreatedInsurance());
+		Boolean successed = rbvdR221.executeCreatedInsrcEvent(createdInsrcEventDTO.getCreatedInsurance());
+
+		if(successed) {
+			LOGGER.info("***** CREATED INSURANCE EVENT WAS SUCCESSED *****");
+		} else {
+			LOGGER.info("***** CREATED INSURANCE EVENT WASN'T SUCCESSED *****");
+			this.setSeverity(Severity.ENR);
+		}
+
 	}
 
 }

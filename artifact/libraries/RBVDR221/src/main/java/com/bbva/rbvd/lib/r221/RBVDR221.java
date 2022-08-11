@@ -4,6 +4,6 @@ import com.bbva.rbvd.dto.insrncsale.events.CreatedInsuranceDTO;
 
 public interface RBVDR221 {
 
-	void executeCreatedInsrcEvent(CreatedInsuranceDTO createdInsuranceDTO);
+	Boolean executeCreatedInsrcEvent(CreatedInsuranceDTO createdInsuranceDTO);
 
 }

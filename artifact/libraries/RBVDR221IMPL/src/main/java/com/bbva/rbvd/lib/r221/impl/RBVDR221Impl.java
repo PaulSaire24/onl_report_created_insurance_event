@@ -28,7 +28,7 @@ public class RBVDR221Impl extends RBVDR221Abstract {
 	private static final Logger LOGGER = LoggerFactory.getLogger(RBVDR221Impl.class);
 
 	@Override
-	public void executeCreatedInsrcEvent(CreatedInsuranceDTO createdInsuranceDTO) {
+	public Boolean executeCreatedInsrcEvent(CreatedInsuranceDTO createdInsuranceDTO) {
 		LOGGER.info("***** RBVDR221Impl - executeCreatedInsrcEvntBusinessLogic START *****");
 
 		LOGGER.info("***** RBVDR221Impl - executeCreatedInsrcEvntBusinessLogic ***** Executing PISDR012 executeGetRequiredFieldsForEmissionService method");
@@ -64,7 +64,7 @@ public class RBVDR221Impl extends RBVDR221Abstract {
 			this.httpClient.executeMailSendService(emailRequest);
 		} catch (BusinessException ex) {
 			this.addAdviceWithDescription(ex.getAdviceCode(), ex.getMessage());
-			return;
+			return false;
 		}
 
 		LOGGER.info("***** RBVDR221Impl - executeCreatedInsrcEvntBusinessLogic ***** Building GifoleInsuranceRequestASO object");
@@ -75,10 +75,11 @@ public class RBVDR221Impl extends RBVDR221Abstract {
 			this.httpClient.executeGifoleService(gifoleRequest);
 		} catch (BusinessException ex) {
 			this.addAdviceWithDescription(ex.getAdviceCode(), ex.getMessage());
-			return;
+			return false;
 		}
 
 		LOGGER.info("***** RBVDR221Impl - executeCreatedInsrcEvntBusinessLogic END *****");
+		return true;
 	}
 
 	private RequiredFieldsEmissionDAO buildEmissionRequiredFieldsDAO(Map<String, Object> responseGetRequiredFields) {
