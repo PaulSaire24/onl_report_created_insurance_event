@@ -9,6 +9,7 @@ import com.bbva.pisd.dto.insurance.aso.gifole.GifoleInsuranceRequestASO;
 
 import com.bbva.pisd.dto.insurance.bo.customer.CustomerBO;
 import com.bbva.pisd.dto.insurance.mock.MockDTO;
+import com.bbva.rbvd.dto.insrncsale.sigma.SigmaSetAlarmStatusDTO;
 import com.bbva.rbvd.lib.r221.factory.ApiConnectorFactoryMock;
 import com.bbva.rbvd.lib.r221.impl.util.HttpClient;
 
@@ -39,7 +40,10 @@ public class HttpClientTest {
 
     private final HttpClient httpClient = new HttpClient();
 
+    private final String errorMessage = "Something went wrong";
+
     private APIConnector internalApiConnector;
+    private APIConnector internalApiConnectorImpersonation;
 
     @Before
     public void setUp() {
@@ -48,6 +52,8 @@ public class HttpClientTest {
         ApiConnectorFactoryMock apiConnectorFactoryMock = new ApiConnectorFactoryMock();
         internalApiConnector = apiConnectorFactoryMock.getAPIConnector(mockBundleContext);
         httpClient.setInternalApiConnector(internalApiConnector);
+        internalApiConnectorImpersonation = apiConnectorFactoryMock.getAPIConnector(mockBundleContext, true, true);
+        httpClient.setInternalApiConnectorImpersonation(internalApiConnectorImpersonation);
     }
 
     @Test
@@ -65,7 +71,7 @@ public class HttpClientTest {
     @Test(expected = BusinessException.class)
     public void executeGifoleServiceWithRestClientException() {
         when(internalApiConnector.exchange(anyString(), any(HttpMethod.class), anyObject(), (Class<Void>)any())).
-                thenThrow(new RestClientException("Something went wrong"));
+                thenThrow(new RestClientException(errorMessage));
 
         this.httpClient.executeGifoleService(new GifoleInsuranceRequestASO());
     }
@@ -85,7 +91,7 @@ public class HttpClientTest {
     @Test(expected = BusinessException.class)
     public void executeMailSendServiceWithRestClientException() {
         when(internalApiConnector.exchange(anyString(), any(HttpMethod.class), anyObject(), (Class<Void>) any())).
-                thenThrow(new RestClientException("Something went wrong"));
+                thenThrow(new RestClientException(errorMessage));
 
         this.httpClient.executeMailSendService(new CreateEmailASO());
     }
@@ -106,10 +112,27 @@ public class HttpClientTest {
     @Test
     public void executeListCustomerServiceWithRestClientException() {
         when(internalApiConnector.getForObject(anyString(), any(), anyMap()))
-                .thenThrow(new RestClientException("Something went wrong"));
+                .thenThrow(new RestClientException(errorMessage));
 
         CustomerBO validation = this.httpClient.executeListCustomerService("customerId");
 
         assertNull(validation);
     }
+
+    @Test
+    public void executeSetAlarmStatusOK() {
+        when(this.internalApiConnectorImpersonation.exchange(anyString(), any(HttpMethod.class), anyObject(), (Class<Void>) any())).
+                thenReturn(new ResponseEntity<>(HttpStatus.OK));
+
+        this.httpClient.executeSetAlarmStatus(new SigmaSetAlarmStatusDTO());
+    }
+
+    @Test
+    public void executeSetAlarmStatusWithRestClientException() {
+        when(this.internalApiConnectorImpersonation.exchange(anyString(), any(HttpMethod.class), anyObject(), (Class<Void>) any())).
+                thenThrow(new RestClientException(errorMessage));
+
+        this.httpClient.executeSetAlarmStatus(new SigmaSetAlarmStatusDTO());
+    }
+
 }

@@ -11,6 +11,7 @@ import com.bbva.rbvd.dto.insrncsale.dao.CreatedInsrcEventDAO;
 import com.bbva.rbvd.dto.insrncsale.dao.RequiredFieldsEmissionDAO;
 
 import com.bbva.rbvd.dto.insrncsale.events.CreatedInsuranceDTO;
+import com.bbva.rbvd.dto.insrncsale.sigma.SigmaSetAlarmStatusDTO;
 import com.bbva.rbvd.dto.insrncsale.utils.RBVDProperties;
 
 import org.slf4j.Logger;
@@ -18,6 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import static com.google.common.base.Strings.nullToEmpty;
@@ -27,12 +29,18 @@ public class RBVDR221Impl extends RBVDR221Abstract {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(RBVDR221Impl.class);
 
+	private static final String STATUS_ALARM = "CRITICAL";
+
 	@Override
 	public Boolean executeCreatedInsrcEvent(CreatedInsuranceDTO createdInsuranceDTO) {
 		LOGGER.info("***** RBVDR221Impl - executeCreatedInsrcEvntBusinessLogic START *****");
 
 		LOGGER.info("***** RBVDR221Impl - executeCreatedInsrcEvntBusinessLogic ***** Executing PISDR012 executeGetRequiredFieldsForEmissionService method");
-		Map<String, Object> responseGetEmissionRequiredFields = this.pisdR012.executeGetRequiredFieldsForEmissionService(createdInsuranceDTO.getQuotationId());
+		Map<String, Object> argumentsForGetRequiredFields = new HashMap<>();
+		argumentsForGetRequiredFields.put(RBVDProperties.FIELD_POLICY_QUOTA_INTERNAL_ID.getValue(), createdInsuranceDTO.getQuotationId());
+
+		Map<String, Object> responseGetEmissionRequiredFields = this.pisdR012.
+				executeGetASingleRow(RBVDProperties.DYNAMIC_QUERY_FOR_INSURANCE_CONTRACT.getValue(), argumentsForGetRequiredFields);
 
 		RequiredFieldsEmissionDAO emissionDAO = buildEmissionRequiredFieldsDAO(responseGetEmissionRequiredFields);
 
@@ -63,6 +71,7 @@ public class RBVDR221Impl extends RBVDR221Abstract {
 		try {
 			this.httpClient.executeMailSendService(emailRequest);
 		} catch (BusinessException ex) {
+			this.httpClient.executeSetAlarmStatus(this.createAlarmErrorRequest("createEmail"));
 			this.addAdviceWithDescription(ex.getAdviceCode(), ex.getMessage());
 			return false;
 		}
@@ -74,6 +83,7 @@ public class RBVDR221Impl extends RBVDR221Abstract {
 		try {
 			this.httpClient.executeGifoleService(gifoleRequest);
 		} catch (BusinessException ex) {
+			this.httpClient.executeSetAlarmStatus(this.createAlarmErrorRequest("createGifoleInsuranceRequest"));
 			this.addAdviceWithDescription(ex.getAdviceCode(), ex.getMessage());
 			return false;
 		}
@@ -112,6 +122,13 @@ public class RBVDR221Impl extends RBVDR221Abstract {
 		createdInsrcEventDAO.
 				setPaymentMethodId((String) responseGetCreatedInsrcEvntRequiredFields.get(RBVDProperties.FIELD_PAYMENT_METHOD_TYPE.getValue()));
 		return createdInsrcEventDAO;
+	}
+
+	private SigmaSetAlarmStatusDTO createAlarmErrorRequest(String serviceName) {
+		SigmaSetAlarmStatusDTO sigmaSetAlarmStatusDTO = new SigmaSetAlarmStatusDTO();
+		sigmaSetAlarmStatusDTO.setStatus(STATUS_ALARM);
+		sigmaSetAlarmStatusDTO.setReason("Hubo un problema al consumir el servicio " + serviceName + ", revisar el log e identificar el problema.");
+		return sigmaSetAlarmStatusDTO;
 	}
 
 }

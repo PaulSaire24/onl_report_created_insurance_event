@@ -46,7 +46,7 @@
 		</dto>
 		<dto order="2" name="createdInsurance" mandatory="1" package="com.bbva.rbvd.dto.insrncsale.events.CreatedInsuranceDTO" artifactId="RBVDC201">
 			<parameter order="1" name="quotationId" mandatory="1" type="String" size="30"/>
-			<parameter order="2" name="operationDate" mandatory="1" type="Timestamp" size="0"/>
+			<parameter order="2" name="operationDate" mandatory="1" type="Date (YYYY-MM-DD)" size="0"/>
 			<dto order="3" name="validityPeriod" mandatory="0" package="com.bbva.rbvd.dto.insrncsale.commons.ValidityPeriodDTO" artifactId="RBVDC201">
 				<parameter order="1" name="startDate" mandatory="1" type="Date (YYYY-MM-DD)" size="0"/>
 				<parameter order="2" name="endDate" mandatory="1" type="Date (YYYY-MM-DD)" size="0"/>

@@ -11,6 +11,7 @@ import com.bbva.pisd.dto.insurance.bo.customer.CustomerBO;
 
 import com.bbva.pisd.dto.insurance.utils.PISDProperties;
 
+import com.bbva.rbvd.dto.insrncsale.sigma.SigmaSetAlarmStatusDTO;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -36,6 +37,8 @@ public class HttpClient {
     private final Gson gson;
 
     private APIConnector internalApiConnector;
+
+    private APIConnector internalApiConnectorImpersonation;
 
     public HttpClient() {
         gson = new GsonBuilder().create();
@@ -105,6 +108,24 @@ public class HttpClient {
         }
     }
 
+    public void executeSetAlarmStatus(SigmaSetAlarmStatusDTO alarmStatus) {
+        LOGGER.info("***** HttpClient - executing Upsilon setAlarmStatus service START *****");
+
+        String json = this.gson.toJson(alarmStatus);
+
+        HttpEntity<String> entity = new HttpEntity(json, createHttpHeaders());
+
+        try {
+            ResponseEntity<Void> response = this.internalApiConnectorImpersonation.exchange("upsilonSetAlarmStatus", HttpMethod.POST,
+                    entity, Void.class);
+            LOGGER.info("***** HttpClient - Upsilon setAlarmStatus http response code: {}", response.getStatusCode().value());
+        } catch (RestClientException ex) {
+            LOGGER.info("***** HttpClient - executeMailSendService ***** Something went wrong: {} !!!", ex.getMessage());
+        }
+
+        LOGGER.info("***** HttpClient - executing Upsilon setAlarmStatus service END *****");
+    }
+
     private HttpHeaders createHttpHeaders() {
         HttpHeaders headers = new HttpHeaders();
         MediaType mediaType = new MediaType("application","json", StandardCharsets.UTF_8);
@@ -114,6 +135,10 @@ public class HttpClient {
 
     public void setInternalApiConnector(APIConnector internalApiConnector) {
         this.internalApiConnector = internalApiConnector;
+    }
+
+    public void setInternalApiConnectorImpersonation(APIConnector internalApiConnectorImpersonation) {
+        this.internalApiConnectorImpersonation = internalApiConnectorImpersonation;
     }
 
 }

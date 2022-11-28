@@ -9,6 +9,7 @@
 	</bean>
 	<bean id="httpClient" class="com.bbva.rbvd.lib.r221.impl.util.HttpClient">
 		<property name="internalApiConnector" ref="internalApiConnector"/>
+		<property name="internalApiConnectorImpersonation" ref="internalApiConnectorImpersonation"/>
 	</bean>
 	<bean id="applicationConfigurationService" factory-bean="applicationConfigurationServiceFactory" factory-method="getApplicationConfigurationService">
 		<constructor-arg type="org.osgi.framework.BundleContext" ref="bundleContext"/>
@@ -18,5 +19,10 @@
 	</bean>
 	<bean id="apiConnectorBuilder" factory-bean="apiConnectorFactoryImpl" factory-method="getAPIConnectorBuilder">
 		<constructor-arg index="0" type="org.osgi.framework.BundleContext" ref="bundleContext"/>
+	</bean>
+	<bean id="internalApiConnectorImpersonation" factory-bean="apiConnectorFactoryImpl" factory-method="getAPIConnector">
+		<constructor-arg index="0" type="org.osgi.framework.BundleContext" ref="bundleContext" />
+		<constructor-arg index="1" type="boolean" value="true" />
+		<constructor-arg index="2" type="boolean" value="true" />
 	</bean>
 </beans>

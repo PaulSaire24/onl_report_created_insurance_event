@@ -12,6 +12,7 @@ public abstract class AbstractRBVDT21101PETransaction extends AbstractTransactio
 	public AbstractRBVDT21101PETransaction(){
 	}
 
+
 	/**
 	 * Return value for input parameter header
 	 */
