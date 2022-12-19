@@ -12,5 +12,8 @@
 	<version>0.1.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>LIBRARIES-onl_report_created_insurance_event</name>
-	<modules/>
+	<modules>
+		<module>RBVDR221</module>
+		<module>RBVDR221IMPL</module>
+	</modules>
 </project>
