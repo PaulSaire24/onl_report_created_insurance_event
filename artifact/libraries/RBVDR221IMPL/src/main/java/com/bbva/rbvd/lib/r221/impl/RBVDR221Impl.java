@@ -121,6 +121,8 @@ public class RBVDR221Impl extends RBVDR221Abstract {
 				setPeriodName((String) responseGetCreatedInsrcEvntRequiredFields.get(PISDProperties.FIELD_PAYMENT_FREQUENCY_NAME.getValue()));
 		createdInsrcEventDAO.
 				setPaymentMethodId((String) responseGetCreatedInsrcEvntRequiredFields.get(RBVDProperties.FIELD_PAYMENT_METHOD_TYPE.getValue()));
+		createdInsrcEventDAO.
+				setInsuranceCompanyDesc((String) responseGetCreatedInsrcEvntRequiredFields.get(RBVDProperties.FIELD_INSURANCE_COMPANY_DESC.getValue()));
 		return createdInsrcEventDAO;
 	}
 

@@ -36,13 +36,11 @@ import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 
 import java.math.BigDecimal;
-
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-
 import java.util.Date;
 import java.util.Locale;
 import java.util.Map;
@@ -208,6 +206,8 @@ public class MapperHelper {
 
         if(productId.equals("830")) {
             createEmailASO = buildVehicleEmailRequest(requestBody, emissionDao, createdInsrcEventDao);
+        } else if(productId.equals("834")) {
+            createEmailASO = buildGeneralEmailRequest(requestBody, emissionDao, createdInsrcEventDao, customerName);
         } else {
             Map<String, Object> responseQueryGetHomeInfo = pisdR021.executeGetHomeInfoForEmissionService(requestBody.getQuotationId());
             Map<String, Object> responseQueryGetHomeRiskDirection= pisdR021.executeGetHomeRiskDirection(requestBody.getQuotationId());
@@ -398,6 +398,40 @@ public class MapperHelper {
         }
         code.append(index);
         return code.toString();
+    }
+
+    private CreateEmailASO buildGeneralEmailRequest(CreatedInsuranceDTO requestBody, RequiredFieldsEmissionDAO emissionDao, CreatedInsrcEventDAO createdInsrcEventDao, String customerName) {
+        String layoutCode = "PLT01011";
+
+        CreateEmailASO generalEmail = new CreateEmailASO();
+        generalEmail.setApplicationId(layoutCode.concat(format.format(new Date())));
+        generalEmail.setRecipient("0,".concat(requestBody.getHolder().getContactDetails().get(0).getContact().getValue()));
+        generalEmail.setSubject("Genial Tu solicitud de Seguro de Proteccion de Tarjetas fue ingresada con exito");
+
+        String[] data = this.getGeneralMailBodyData(requestBody, emissionDao, createdInsrcEventDao, customerName);
+
+        generalEmail.setBody(this.getMailBodyHome(data, layoutCode));
+        generalEmail.setSender(MAIL_SENDER);
+
+        return generalEmail;
+    }
+
+    private String[] getGeneralMailBodyData(CreatedInsuranceDTO requestBody, RequiredFieldsEmissionDAO emissionDao, CreatedInsrcEventDAO createdInsrcEventDao, String customerName) {
+
+        String[] bodyData = new String[7];
+
+        bodyData[0] = customerName;
+        bodyData[1] = createdInsrcEventDao.getRimacPolicy();
+        bodyData[2] = emissionDao.getInsuranceModalityName();
+        bodyData[3] = createdInsrcEventDao.getInsuranceCompanyDesc();
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMMM yyyy", new Locale("es", "ES"));
+
+        bodyData[4] = dateFormat.format(requestBody.getValidityPeriod().getStartDate());
+        bodyData[5] = dateFormat.format(requestBody.getValidityPeriod().getEndDate());
+        bodyData[6] = "Tarjeta Clasica ***123";
+        
+        return bodyData;
     }
 
     public void setApplicationConfigurationService(ApplicationConfigurationService applicationConfigurationService) {
