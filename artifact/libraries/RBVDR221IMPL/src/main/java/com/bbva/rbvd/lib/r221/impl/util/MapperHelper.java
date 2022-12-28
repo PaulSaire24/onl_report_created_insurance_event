@@ -49,12 +49,15 @@ import java.util.stream.Stream;
 
 import static java.math.BigDecimal.valueOf;
 import static java.util.Collections.singletonList;
+import static java.util.Objects.nonNull;
 import static java.util.stream.Collectors.toList;
 
 public class MapperHelper {
 
     private static final DateTimeZone AMERICA_LIMA_ZONE = DateTimeZone.forID("America/Lima");
     private static final String MAIL_SENDER = "procesos@bbva.com.pe";
+    private static final String MASK_VALUE = "****";
+    private static final String IN_PROCCESS_VALUE = "En proceso";
 
     private final SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
 
@@ -141,8 +144,10 @@ public class MapperHelper {
             holder.setHasBankAccount(false);
         }
 
+        int beginIndex = createdInsuranceDTO.getPaymentMethod().getRelatedContracts().get(0).getNumber().length() - 4;
+
         RelatedContractASO relatedContract = new RelatedContractASO();
-        relatedContract.setNumber("****1234");
+        relatedContract.setNumber(MASK_VALUE.concat(createdInsuranceDTO.getPaymentMethod().getRelatedContracts().get(0).getNumber().substring(beginIndex)));
 
         paymentMethod.setRelatedContracts(singletonList(relatedContract));
 
@@ -250,7 +255,8 @@ public class MapperHelper {
         bodyData[6] = emissionDao.getVehicleCirculationType().equals("L") ? "Lima" : "Provincia";
         bodyData[7] = numberFormat.format(emissionDao.getCommercialVehicleAmount());
         bodyData[8] = this.getContractNumber(createdInsrcEventDao.getContractNumber());
-        bodyData[9] = createdInsrcEventDao.getRimacPolicy();
+        bodyData[9] = nonNull(createdInsrcEventDao.getRimacPolicy()) ? createdInsrcEventDao.getRimacPolicy()
+                : IN_PROCCESS_VALUE;
         bodyData[10] = emissionDao.getInsuranceModalityName();
 
         BigDecimal monthlyPay = valueOf(requestBody.getProduct().getPlan().getInstallmentPlans().get(0).getPaymentAmount().getAmount());
@@ -372,7 +378,8 @@ public class MapperHelper {
                 numberFormat.format(simltInsuredHousingDAO.getHousingAssetsLoanAmount()) : "";
 
         bodyData[12] = getContractNumber(createdInsrcEventDao.getContractNumber());
-        bodyData[13] = createdInsrcEventDao.getRimacPolicy();
+        bodyData[13] = nonNull(createdInsrcEventDao.getRimacPolicy()) ? createdInsrcEventDao.getRimacPolicy()
+        : IN_PROCCESS_VALUE;
         bodyData[14] = numberFormat.format(requestBody.getProduct().getPlan().getInstallmentPlans().get(0).getPaymentAmount().getAmount());
         bodyData[15] = createdInsrcEventDao.getPeriodName();
         bodyData[16] = emissionDao.getInsuranceModalityName();
@@ -421,7 +428,8 @@ public class MapperHelper {
         String[] bodyData = new String[7];
 
         bodyData[0] = customerName;
-        bodyData[1] = createdInsrcEventDao.getRimacPolicy();
+        bodyData[1] = nonNull(createdInsrcEventDao.getRimacPolicy()) ? createdInsrcEventDao.getRimacPolicy()
+        : IN_PROCCESS_VALUE;
         bodyData[2] = emissionDao.getInsuranceModalityName();
         bodyData[3] = createdInsrcEventDao.getInsuranceCompanyDesc();
 
@@ -429,7 +437,10 @@ public class MapperHelper {
 
         bodyData[4] = dateFormat.format(requestBody.getValidityPeriod().getStartDate());
         bodyData[5] = dateFormat.format(requestBody.getValidityPeriod().getEndDate());
-        bodyData[6] = "Tarjeta Clasica ***123";
+
+        int beginIndex = requestBody.getPaymentMethod().getRelatedContracts().get(0).getNumber().length() - 4;
+
+        bodyData[6] = MASK_VALUE.concat(requestBody.getPaymentMethod().getRelatedContracts().get(0).getNumber().substring(beginIndex));
         
         return bodyData;
     }

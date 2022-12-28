@@ -5,8 +5,6 @@ import com.bbva.elara.domain.transaction.Severity;
 import com.bbva.rbvd.dto.insrncsale.events.CreatedInsuranceDTO;
 import com.bbva.rbvd.lib.r221.RBVDR221;
 
-import com.bbva.rbvd.dto.insrncsale.events.CreatedInsrcEventDTO;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,12 +22,9 @@ public class RBVDT21101PETransaction extends AbstractRBVDT21101PETransaction {
 		String aap = (String) this.getRequestHeader().getHeaderParameter(RequestHeaderParamsName.AAP);
 
 		CreatedInsuranceDTO createdInsuranceDTO = this.getCreatedinsurance();
-
 		createdInsuranceDTO.setAap(aap);
 
-		CreatedInsrcEventDTO createdInsrcEventDTO = new CreatedInsrcEventDTO(createdInsuranceDTO, this.getHeader());
-
-		Boolean successed = rbvdR221.executeCreatedInsrcEvent(createdInsrcEventDTO.getCreatedInsurance());
+		Boolean successed = rbvdR221.executeCreatedInsrcEvent(createdInsuranceDTO);
 
 		if(successed) {
 			LOGGER.info("***** CREATED INSURANCE EVENT WAS SUCCESSED *****");
