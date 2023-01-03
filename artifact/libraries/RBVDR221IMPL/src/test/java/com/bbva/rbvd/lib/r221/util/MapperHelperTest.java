@@ -31,7 +31,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 
-import static org.mockito.Matchers.anyMap;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.anyString;
@@ -65,6 +64,7 @@ public class MapperHelperTest {
         when(createdInsrcEventDAO.getRimacPolicy()).thenReturn("510772");
         when(createdInsrcEventDAO.getPaymentMethodId()).thenReturn("C");
         when(createdInsrcEventDAO.getPeriodName()).thenReturn("MENSUAL");
+        when(createdInsrcEventDAO.getInsuranceCompanyDesc()).thenReturn("RIMAC");
 
         when(requiredFieldsEmissionDAO.getInsuranceModalityName()).thenReturn("PLAN BASICO");
         when(requiredFieldsEmissionDAO.getPaymentFrequencyName()).thenReturn("Mensual");
@@ -208,6 +208,7 @@ public class MapperHelperTest {
         assertEquals("procesos@bbva.com.pe", validation.getSender());
 
         when(requiredFieldsEmissionDAO.getVehicleLicenseId()).thenReturn(null);
+        when(createdInsrcEventDAO.getRimacPolicy()).thenReturn(null);
         when(requiredFieldsEmissionDAO.getGasConversionType()).thenReturn("N");
         when(requiredFieldsEmissionDAO.getVehicleCirculationType()).thenReturn("P");
 
@@ -253,6 +254,7 @@ public class MapperHelperTest {
         when(responseQueryGetHomeInfo.get(HomeInsuranceProperty.FIELD_HOUSING_TYPE.getValue())).thenReturn("P");
         when(responseQueryGetHomeInfo.get(HomeInsuranceProperty.FIELD_EDIFICATION_LOAN_AMOUNT.getValue())).thenReturn(null);
         when(responseQueryGetHomeInfo.get(HomeInsuranceProperty.FIELD_HOUSING_ASSETS_LOAN_AMOUNT.getValue())).thenReturn(null);
+        when(createdInsrcEventDAO.getRimacPolicy()).thenReturn(null);
 
         validation = this.mapperHelper.createEmailServiceRequest(createdInsuranceDTO, requiredFieldsEmissionDAO, createdInsrcEventDAO, "customerName");
 
@@ -263,5 +265,29 @@ public class MapperHelperTest {
         validation = this.mapperHelper.createEmailServiceRequest(createdInsuranceDTO, requiredFieldsEmissionDAO, createdInsrcEventDAO, "customerName");
 
         assertNotNull(validation);
+    }
+
+    @Test
+    public void createGeneralEmailServiceRequest() {
+
+        createdInsuranceDTO.getProduct().setId("834");
+
+        CreateEmailASO validation = this.mapperHelper.createEmailServiceRequest(createdInsuranceDTO, requiredFieldsEmissionDAO, createdInsrcEventDAO, "customerName");
+
+        assertNotNull(validation);
+        assertNotNull(validation.getApplicationId());
+        assertNotNull(validation.getRecipient());
+        assertNotNull(validation.getSubject());
+        assertNotNull(validation.getSubject());
+        assertNotNull(validation.getBody());
+        assertNotNull(validation.getSender());
+
+        assertEquals("0,ronald.dolores@bbva.com", validation.getRecipient());
+        assertEquals("Genial Tu solicitud de Seguro de Proteccion de Tarjetas fue ingresada con exito", validation.getSubject());
+        assertEquals("procesos@bbva.com.pe", validation.getSender());
+
+        when(createdInsrcEventDAO.getRimacPolicy()).thenReturn(null);
+
+        validation = this.mapperHelper.createEmailServiceRequest(createdInsuranceDTO, requiredFieldsEmissionDAO, createdInsrcEventDAO, "customerName");
     }
 }

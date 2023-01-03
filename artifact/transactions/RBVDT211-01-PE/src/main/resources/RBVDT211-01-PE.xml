@@ -1,50 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <transaction xmlns="http://www.w3schools.com" transactionName="RBVDT211" application="RBVD" version="01" country="PE" language="ES">
 	<paramsIn>
-		<dto order="1" name="header" mandatory="1" package="com.bbva.rbvd.dto.insrncsale.events.header.HeaderDTO" artifactId="RBVDC201">
-			<dto order="1" name="event" mandatory="1" package="com.bbva.rbvd.dto.insrncsale.events.header.EventDTO" artifactId="RBVDC201">
-				<parameter order="1" name="name" mandatory="1" type="String" size="50"/>
-				<parameter order="2" name="namespace" mandatory="1" type="String" size="80"/>
-				<parameter order="3" name="timestamp" mandatory="0" type="String" size="50"/>
-				<parameter order="4" name="uid" mandatory="0" type="String" size="50"/>
-			</dto>
-			<dto order="2" name="flag" mandatory="1" package="com.bbva.rbvd.dto.insrncsale.events.header.FlagDTO" artifactId="RBVDC201">
-				<parameter order="1" name="debug" mandatory="1" type="String" size="10"/>
-				<parameter order="2" name="test" mandatory="1" type="String" size="10"/>
-			</dto>
-			<dto order="3" name="origin" mandatory="1" package="com.bbva.rbvd.dto.insrncsale.events.header.OriginDTO" artifactId="RBVDC201">
-				<parameter order="1" name="aap" mandatory="1" type="String" size="8"/>
-				<dto order="2" name="bank" mandatory="1" package="com.bbva.rbvd.dto.insrncsale.events.header.BankEventDTO" artifactId="RBVDC201">
-					<parameter order="1" name="bankId" mandatory="1" type="String" size="4"/>
-					<dto order="2" name="branch" mandatory="1" package="com.bbva.rbvd.dto.insrncsale.events.header.BranchEventDTO" artifactId="RBVDC201">
-						<parameter order="1" name="branchId" mandatory="1" type="String" size="4"/>
-					</dto>
-				</dto>
-				<parameter order="3" name="channelCode" mandatory="1" type="String" size="2"/>
-				<parameter order="4" name="country" mandatory="1" type="String" size="2"/>
-				<parameter order="5" name="environCode" mandatory="1" type="String" size="2"/>
-				<parameter order="6" name="ipv4" mandatory="1" type="String" size="20"/>
-				<parameter order="7" name="language" mandatory="1" type="String" size="2"/>
-				<parameter order="8" name="operation" mandatory="1" type="String" size="50"/>
-				<parameter order="9" name="productCode" mandatory="1" type="String" size="4"/>
-				<parameter order="10" name="session" mandatory="0" type="String" size="5"/>
-				<parameter order="11" name="timestamp" mandatory="1" type="String" size="20"/>
-				<parameter order="12" name="uid" mandatory="0" type="String" size="2"/>
-				<parameter order="13" name="user" mandatory="1" type="String" size="10"/>
-				<parameter order="14" name="userType" mandatory="1" type="String" size="1"/>
-			</dto>
-			<dto order="4" name="result" mandatory="1" package="com.bbva.rbvd.dto.insrncsale.events.header.ResultDTO" artifactId="RBVDC201">
-				<parameter order="1" name="returnCode" mandatory="1" type="String" size="3"/>
-				<parameter order="2" name="returnDefinition" mandatory="0" type="String" size="50"/>
-			</dto>
-			<dto order="5" name="traces" mandatory="1" package="com.bbva.rbvd.dto.insrncsale.events.header.TraceDTO" artifactId="RBVDC201">
-				<parameter order="1" name="followsSpanId" mandatory="1" type="String" size="5"/>
-				<parameter order="2" name="parentSpanId" mandatory="1" type="String" size="36"/>
-				<parameter order="3" name="traceId" mandatory="1" type="String" size="36"/>
-			</dto>
-			<parameter order="6" name="version" mandatory="1" type="String" size="5"/>
-		</dto>
-		<dto order="2" name="createdInsurance" mandatory="1" package="com.bbva.rbvd.dto.insrncsale.events.CreatedInsuranceDTO" artifactId="RBVDC201">
+		<dto order="1" name="createdInsurance" mandatory="1" package="com.bbva.rbvd.dto.insrncsale.events.CreatedInsuranceDTO" artifactId="RBVDC201">
 			<parameter order="1" name="quotationId" mandatory="1" type="String" size="30"/>
 			<parameter order="2" name="operationDate" mandatory="1" type="Date (YYYY-MM-DD)" size="0"/>
 			<dto order="3" name="validityPeriod" mandatory="0" package="com.bbva.rbvd.dto.insrncsale.commons.ValidityPeriodDTO" artifactId="RBVDC201">
@@ -121,6 +78,25 @@
 						</dto>
 					</list>
 				</dto>
+			</dto>
+			<dto order="6" name="paymentMethod" mandatory="0" package="com.bbva.rbvd.dto.insrncsale.policy.PolicyPaymentMethodDTO" artifactId="RBVDC201">
+				<parameter order="1" name="paymentType" mandatory="1" type="String" size="30"/>
+				<list order="2" name="relatedContracts" mandatory="1">
+					<dto order="1" name="Type" mandatory="0" package="com.bbva.rbvd.dto.insrncsale.policy.RelatedContractDTO" artifactId="RBVDC201">
+						<parameter order="1" name="contractId" mandatory="1" type="String" size="20"/>
+						<parameter order="2" name="number" mandatory="0" type="String" size="20"/>
+					</dto>
+				</list>
+			</dto>
+			<dto order="7" name="inspection" mandatory="0" package="com.bbva.rbvd.dto.insrncsale.commons.PolicyInspectionDTO" artifactId="RBVDC201">
+				<parameter order="1" name="isRequired" mandatory="1" type="Boolean" size="0"/>
+				<parameter order="2" name="fullName" mandatory="0" type="String" size="80"/>
+				<list order="3" name="contactDetails" mandatory="1">
+					<dto order="1" name="Type" mandatory="0" package="com.bbva.rbvd.dto.insrncsale.commons.ContactDetailDTO" artifactId="RBVDC201">
+						<parameter order="1" name="contactType" mandatory="1" type="String" size="30"/>
+						<parameter order="2" name="value" mandatory="1" type="String" size="100"/>
+					</dto>
+				</list>
 			</dto>
 		</dto>
 	</paramsIn>

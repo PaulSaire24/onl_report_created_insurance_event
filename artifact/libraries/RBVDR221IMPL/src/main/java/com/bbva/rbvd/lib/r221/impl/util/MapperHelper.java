@@ -36,13 +36,11 @@ import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 
 import java.math.BigDecimal;
-
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-
 import java.util.Date;
 import java.util.Locale;
 import java.util.Map;
@@ -51,12 +49,15 @@ import java.util.stream.Stream;
 
 import static java.math.BigDecimal.valueOf;
 import static java.util.Collections.singletonList;
+import static java.util.Objects.nonNull;
 import static java.util.stream.Collectors.toList;
 
 public class MapperHelper {
 
     private static final DateTimeZone AMERICA_LIMA_ZONE = DateTimeZone.forID("America/Lima");
     private static final String MAIL_SENDER = "procesos@bbva.com.pe";
+    private static final String MASK_VALUE = "****";
+    private static final String IN_PROCCESS_VALUE = "En proceso";
 
     private final SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
 
@@ -143,8 +144,10 @@ public class MapperHelper {
             holder.setHasBankAccount(false);
         }
 
+        int beginIndex = createdInsuranceDTO.getPaymentMethod().getRelatedContracts().get(0).getNumber().length() - 4;
+
         RelatedContractASO relatedContract = new RelatedContractASO();
-        relatedContract.setNumber("****1234");
+        relatedContract.setNumber(MASK_VALUE.concat(createdInsuranceDTO.getPaymentMethod().getRelatedContracts().get(0).getNumber().substring(beginIndex)));
 
         paymentMethod.setRelatedContracts(singletonList(relatedContract));
 
@@ -208,6 +211,8 @@ public class MapperHelper {
 
         if(productId.equals("830")) {
             createEmailASO = buildVehicleEmailRequest(requestBody, emissionDao, createdInsrcEventDao);
+        } else if(productId.equals("834")) {
+            createEmailASO = buildGeneralEmailRequest(requestBody, emissionDao, createdInsrcEventDao, customerName);
         } else {
             Map<String, Object> responseQueryGetHomeInfo = pisdR021.executeGetHomeInfoForEmissionService(requestBody.getQuotationId());
             Map<String, Object> responseQueryGetHomeRiskDirection= pisdR021.executeGetHomeRiskDirection(requestBody.getQuotationId());
@@ -250,7 +255,8 @@ public class MapperHelper {
         bodyData[6] = emissionDao.getVehicleCirculationType().equals("L") ? "Lima" : "Provincia";
         bodyData[7] = numberFormat.format(emissionDao.getCommercialVehicleAmount());
         bodyData[8] = this.getContractNumber(createdInsrcEventDao.getContractNumber());
-        bodyData[9] = createdInsrcEventDao.getRimacPolicy();
+        bodyData[9] = nonNull(createdInsrcEventDao.getRimacPolicy()) ? createdInsrcEventDao.getRimacPolicy()
+                : IN_PROCCESS_VALUE;
         bodyData[10] = emissionDao.getInsuranceModalityName();
 
         BigDecimal monthlyPay = valueOf(requestBody.getProduct().getPlan().getInstallmentPlans().get(0).getPaymentAmount().getAmount());
@@ -372,7 +378,8 @@ public class MapperHelper {
                 numberFormat.format(simltInsuredHousingDAO.getHousingAssetsLoanAmount()) : "";
 
         bodyData[12] = getContractNumber(createdInsrcEventDao.getContractNumber());
-        bodyData[13] = createdInsrcEventDao.getRimacPolicy();
+        bodyData[13] = nonNull(createdInsrcEventDao.getRimacPolicy()) ? createdInsrcEventDao.getRimacPolicy()
+        : IN_PROCCESS_VALUE;
         bodyData[14] = numberFormat.format(requestBody.getProduct().getPlan().getInstallmentPlans().get(0).getPaymentAmount().getAmount());
         bodyData[15] = createdInsrcEventDao.getPeriodName();
         bodyData[16] = emissionDao.getInsuranceModalityName();
@@ -398,6 +405,44 @@ public class MapperHelper {
         }
         code.append(index);
         return code.toString();
+    }
+
+    private CreateEmailASO buildGeneralEmailRequest(CreatedInsuranceDTO requestBody, RequiredFieldsEmissionDAO emissionDao, CreatedInsrcEventDAO createdInsrcEventDao, String customerName) {
+        String layoutCode = "PLT01011";
+
+        CreateEmailASO generalEmail = new CreateEmailASO();
+        generalEmail.setApplicationId(layoutCode.concat(format.format(new Date())));
+        generalEmail.setRecipient("0,".concat(requestBody.getHolder().getContactDetails().get(0).getContact().getValue()));
+        generalEmail.setSubject("Genial Tu solicitud de Seguro de Proteccion de Tarjetas fue ingresada con exito");
+
+        String[] data = this.getGeneralMailBodyData(requestBody, emissionDao, createdInsrcEventDao, customerName);
+
+        generalEmail.setBody(this.getMailBodyHome(data, layoutCode));
+        generalEmail.setSender(MAIL_SENDER);
+
+        return generalEmail;
+    }
+
+    private String[] getGeneralMailBodyData(CreatedInsuranceDTO requestBody, RequiredFieldsEmissionDAO emissionDao, CreatedInsrcEventDAO createdInsrcEventDao, String customerName) {
+
+        String[] bodyData = new String[7];
+
+        bodyData[0] = customerName;
+        bodyData[1] = nonNull(createdInsrcEventDao.getRimacPolicy()) ? createdInsrcEventDao.getRimacPolicy()
+        : IN_PROCCESS_VALUE;
+        bodyData[2] = emissionDao.getInsuranceModalityName();
+        bodyData[3] = createdInsrcEventDao.getInsuranceCompanyDesc();
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMMM yyyy", new Locale("es", "ES"));
+
+        bodyData[4] = dateFormat.format(requestBody.getValidityPeriod().getStartDate());
+        bodyData[5] = dateFormat.format(requestBody.getValidityPeriod().getEndDate());
+
+        int beginIndex = requestBody.getPaymentMethod().getRelatedContracts().get(0).getNumber().length() - 4;
+
+        bodyData[6] = MASK_VALUE.concat(requestBody.getPaymentMethod().getRelatedContracts().get(0).getNumber().substring(beginIndex));
+        
+        return bodyData;
     }
 
     public void setApplicationConfigurationService(ApplicationConfigurationService applicationConfigurationService) {
