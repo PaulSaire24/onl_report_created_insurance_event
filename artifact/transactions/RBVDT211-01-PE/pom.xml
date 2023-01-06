@@ -52,7 +52,7 @@
 		<dependency>
 			<groupId>com.bbva.rbvd.dto.insrncsale</groupId>
 			<artifactId>RBVDC201</artifactId>
-			<version>[0.0, )</version>
+			<version>0.12.1</version>
 		</dependency>
 	</dependencies>
 	<build>
