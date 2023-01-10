@@ -34,8 +34,9 @@ public class RBVDR221Impl extends RBVDR221Abstract {
 	@Override
 	public Boolean executeCreatedInsrcEvent(CreatedInsuranceDTO createdInsuranceDTO) {
 		LOGGER.info("***** RBVDR221Impl - executeCreatedInsrcEvntBusinessLogic START *****");
+		LOGGER.info("***** RBVDR221Impl - executeCreatedInsrcEvntBusinessLogic RequestBody {} *****", createdInsuranceDTO);
 
-		LOGGER.info("***** RBVDR221Impl - executeCreatedInsrcEvntBusinessLogic ***** Executing PISDR012 executeGetRequiredFieldsForEmissionService method");
+		LOGGER.info("***** RBVDR221Impl - executeCreatedInsrcEvntBusinessLogic ***** Executing PISDR012 executeGetRequiredFieldsForEmissionService method with id {}", createdInsuranceDTO.getQuotationId());
 		Map<String, Object> argumentsForGetRequiredFields = new HashMap<>();
 		argumentsForGetRequiredFields.put(RBVDProperties.FIELD_POLICY_QUOTA_INTERNAL_ID.getValue(), createdInsuranceDTO.getQuotationId());
 
