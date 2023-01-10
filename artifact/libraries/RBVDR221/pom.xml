@@ -4,12 +4,12 @@
 	<parent>
 		<groupId>com.bbva.rbvd</groupId>
 		<artifactId>LIBRARIES-onl_report_created_insurance_event</artifactId>
-		<version>0.1.1</version>
+		<version>0.1.2</version>
 	</parent>
 	<groupId>com.bbva.rbvd</groupId>
 	<artifactId>RBVDR221</artifactId>
 	<name>RBVDR221</name>
-	<version>0.1.1</version>
+	<version>0.1.2</version>
 	<packaging>bundle</packaging>
 	<description>Lib to execute the created insurance event's business logic</description>
 	<properties>
