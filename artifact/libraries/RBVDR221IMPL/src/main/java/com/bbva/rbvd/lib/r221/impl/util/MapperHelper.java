@@ -31,10 +31,6 @@ import com.bbva.rbvd.dto.insrncsale.dao.RequiredFieldsEmissionDAO;
 import com.bbva.rbvd.dto.insrncsale.events.CreatedInsuranceDTO;
 import com.bbva.rbvd.dto.insrncsale.events.InstallmentPlansCreatedInsrcEvent;
 
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
-import org.joda.time.format.DateTimeFormat;
-
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
@@ -45,6 +41,7 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Calendar;
 import java.util.stream.Stream;
 
 import static java.math.BigDecimal.valueOf;
@@ -54,7 +51,6 @@ import static java.util.stream.Collectors.toList;
 
 public class MapperHelper {
 
-    private static final DateTimeZone AMERICA_LIMA_ZONE = DateTimeZone.forID("America/Lima");
     private static final String MAIL_SENDER = "procesos@bbva.com.pe";
     private static final String MASK_VALUE = "****";
     private static final String IN_PROCCESS_VALUE = "En proceso";
@@ -76,8 +72,9 @@ public class MapperHelper {
 
         gifoleRequest.setChannel(createdInsuranceDTO.getAap());
 
-        DateTime operationDate = new DateTime(createdInsuranceDTO.getOperationDate(), AMERICA_LIMA_ZONE);
-        gifoleRequest.setOperationDate(operationDate.toString(DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")));
+        createdInsuranceDTO.getOperationDate().add(Calendar.HOUR, 5);
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+        gifoleRequest.setOperationDate(dateFormat.format(createdInsuranceDTO.getOperationDate().getTime()));
 
         String validityPeriodStartDate = createdInsuranceDTO.getValidityPeriod().getStartDate().toInstant()
                 .atOffset(ZoneOffset.UTC)
