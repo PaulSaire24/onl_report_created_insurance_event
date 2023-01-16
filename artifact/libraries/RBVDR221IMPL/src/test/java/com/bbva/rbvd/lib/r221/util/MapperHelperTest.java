@@ -125,8 +125,8 @@ public class MapperHelperTest {
         assertNotNull(validation.getInsurance().getPaymentMethod());
         assertEquals("CUENTA", validation.getInsurance().getPaymentMethod().getId());
         assertEquals(1, validation.getInsurance().getPaymentMethod().getRelatedContracts().size());
-        //ESTE CAMPO TIENE UN DETALLE, POR AHORA VA EN DURO
         assertNotNull(validation.getInsurance().getPaymentMethod().getRelatedContracts().get(0).getNumber());
+        assertEquals("****0516", validation.getInsurance().getPaymentMethod().getRelatedContracts().get(0).getNumber());
 
         assertNotNull(validation.getPolicyNumber());
         assertEquals(createdInsrcEventDAO.getRimacPolicy(), validation.getPolicyNumber());
