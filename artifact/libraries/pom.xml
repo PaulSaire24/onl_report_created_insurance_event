@@ -4,12 +4,12 @@
 	<parent>
 		<artifactId>onl_report_created_insurance_event</artifactId>
 		<groupId>com.bbva.rbvd</groupId>
-		<version>0.1.2</version>
+		<version>0.1.3</version>
 		<relativePath>../../</relativePath>
 	</parent>
 	<groupId>com.bbva.rbvd</groupId>
 	<artifactId>LIBRARIES-onl_report_created_insurance_event</artifactId>
-	<version>0.1.2</version>
+	<version>0.1.3</version>
 	<packaging>pom</packaging>
 	<name>LIBRARIES-onl_report_created_insurance_event</name>
 	<modules>
