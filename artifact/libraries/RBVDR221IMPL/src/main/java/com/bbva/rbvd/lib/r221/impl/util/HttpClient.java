@@ -1,19 +1,29 @@
 package com.bbva.rbvd.lib.r221.impl.util;
 
 import com.bbva.apx.exception.business.BusinessException;
+
 import com.bbva.elara.utility.api.connector.APIConnector;
 
 import com.bbva.pisd.dto.insurance.aso.CustomerListASO;
 import com.bbva.pisd.dto.insurance.aso.email.CreateEmailASO;
+
 import com.bbva.pisd.dto.insurance.aso.gifole.GifoleInsuranceRequestASO;
 
 import com.bbva.pisd.dto.insurance.bo.customer.CustomerBO;
 
 import com.bbva.pisd.dto.insurance.utils.PISDProperties;
 
+import com.bbva.rbvd.dto.insrncsale.aso.cypher.CypherASO;
+import com.bbva.rbvd.dto.insrncsale.aso.listbusinesses.ListBusinessesASO;
+
 import com.bbva.rbvd.dto.insrncsale.sigma.SigmaSetAlarmStatusDTO;
+
+import com.bbva.rbvd.dto.insrncsale.utils.RBVDProperties;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+
+import org.apache.commons.lang3.StringUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +43,8 @@ import java.util.Map;
 public class HttpClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpClient.class);
+
+    private static final String CUSTOMER_ID = "customerId";
 
     private final Gson gson;
 
@@ -94,7 +106,7 @@ public class HttpClient {
         LOGGER.info("***** HttpClient - executeListCustomerService START *****");
 
         Map<String, String> pathParams = new HashMap<>();
-        pathParams.put("customerId", customerId);
+        pathParams.put(CUSTOMER_ID, customerId);
 
         try {
             CustomerListASO customerInformationASO = this.internalApiConnector.getForObject(PISDProperties.ID_API_CUSTOMER_INFORMATION.getValue(),
@@ -106,6 +118,49 @@ public class HttpClient {
             LOGGER.info("***** HttpClient - executeListCustomerService ***** Something went wrong: {} !!!", ex.getMessage());
             return null;
         }
+    }
+
+    public String executeCypherService(CypherASO input) {
+        LOGGER.info("***** HttpClient - executeCypherService START *****");
+        LOGGER.info("***** HttpClient - executeCypherService ***** Param: {}", input);
+
+        HttpEntity<CypherASO> entity = new HttpEntity<>(input, createHttpHeaders());
+
+        try {
+            CypherASO out = this.internalApiConnector.postForObject("executecypher", entity,
+                    CypherASO.class);
+            String encryptedCode = out.getData().getDocument();
+            LOGGER.info("***** HttpClient - executeCypherService ***** Response: {}", encryptedCode);
+            LOGGER.info("***** HttpClient - executeCypherService END *****");
+            return encryptedCode;
+        } catch(RestClientException e) {
+            LOGGER.info("***** HttpClient - executeCypherService ***** Exception: {}", e.getMessage());
+            return null;
+        }
+
+    }
+
+    public ListBusinessesASO executeGetListBusinesses(String customerId, String expands) {
+        LOGGER.info("***** HttpClient - executeGetListBusinesses START *****");
+        LOGGER.info("***** HttpClient - executeGetListBusinesses ***** Cc: {} and Expands: {}", customerId, expands);
+
+        Map<String, Object> pathParams = new HashMap<>();
+        pathParams.put(CUSTOMER_ID, customerId);
+
+        if (StringUtils.isNotBlank(expands)) pathParams.put("expand", expands);
+
+        try {
+            ListBusinessesASO  responseList = this.internalApiConnector.getForObject(RBVDProperties.ID_API_LIST_BUSINESSES.getValue()
+                    , ListBusinessesASO.class, pathParams);
+            String jsonResponse = this.gson.toJson(responseList);
+            LOGGER.info("***** HttpClient - executeGetListBusinesses output ***** Response: {}", jsonResponse);
+            LOGGER.info("***** HttpClient - executeGetListBusinesses END getSuccess ***** ");
+            return responseList;
+        } catch (RestClientException e) {
+            LOGGER.info("***** HttpClient - executeGetListBusinesses ***** Exception: {}", e.getMessage());
+            return null;
+        }
+
     }
 
     public void executeSetAlarmStatus(SigmaSetAlarmStatusDTO alarmStatus) {

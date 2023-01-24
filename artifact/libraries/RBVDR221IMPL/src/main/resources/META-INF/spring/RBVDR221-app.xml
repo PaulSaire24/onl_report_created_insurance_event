@@ -3,7 +3,9 @@
 		http://www.springframework.org/schema/osgi http://www.springframework.org/schema/osgi/spring-osgi.xsd">
 	<bean id="mapperHelper" class="com.bbva.rbvd.lib.r221.impl.util.MapperHelper">
 		<property name="applicationConfigurationService" ref="applicationConfigurationService"/>
+		<property name="httpClient" ref="httpClient" />
 		<property name="pisdR021" ref="pisdR021"/>
+		<property name="pisdR012" ref="pisdR012"/>
 	</bean>
 	<bean id="rbvdR221" class="com.bbva.rbvd.lib.r221.impl.RBVDR221Impl" parent="rbvdR221Abstract">
 		<property name="mapperHelper" ref="mapperHelper"/>

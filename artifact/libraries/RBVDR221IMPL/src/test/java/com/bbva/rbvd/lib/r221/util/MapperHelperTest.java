@@ -1,11 +1,15 @@
 package com.bbva.rbvd.lib.r221.util;
 
+import com.bbva.apx.exception.business.BusinessException;
 import com.bbva.elara.configuration.manager.application.ApplicationConfigurationService;
 import com.bbva.pisd.dto.insurance.aso.email.CreateEmailASO;
 import com.bbva.pisd.dto.insurance.aso.gifole.GifoleInsuranceRequestASO;
 
+import com.bbva.pisd.lib.r012.PISDR012;
 import com.bbva.pisd.lib.r021.PISDR021;
 import com.bbva.rbvd.dto.homeinsrc.utils.HomeInsuranceProperty;
+import com.bbva.rbvd.dto.insrncsale.aso.listbusinesses.BusinessASO;
+import com.bbva.rbvd.dto.insrncsale.aso.listbusinesses.ListBusinessesASO;
 import com.bbva.rbvd.dto.insrncsale.dao.CreatedInsrcEventDAO;
 import com.bbva.rbvd.dto.insrncsale.dao.RequiredFieldsEmissionDAO;
 
@@ -15,6 +19,8 @@ import com.bbva.rbvd.dto.insrncsale.events.InstallmentPlansCreatedInsrcEvent;
 
 import com.bbva.rbvd.dto.insrncsale.mock.MockData;
 
+import com.bbva.rbvd.dto.insrncsale.utils.RBVDProperties;
+import com.bbva.rbvd.lib.r221.impl.util.HttpClient;
 import com.bbva.rbvd.lib.r221.impl.util.MapperHelper;
 
 import org.junit.Before;
@@ -22,18 +28,22 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.Map;
 
 import static java.math.BigDecimal.valueOf;
 
+import static java.util.Collections.singletonList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 
+import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.anyMap;
 
 public class MapperHelperTest {
 
@@ -48,6 +58,8 @@ public class MapperHelperTest {
     private CreatedInsrcEventDTO createdInsrcEventDTO;
     private CreatedInsuranceDTO createdInsuranceDTO;
 
+    private HttpClient httpClient;
+    private PISDR012 pisdR012;
     private PISDR021 pisdR021;
     private Map<String, Object> responseQueryGetHomeInfo;
     private Map<String, Object> responseQueryGetHomeRiskDirection;
@@ -72,6 +84,12 @@ public class MapperHelperTest {
         createdInsrcEventDTO = mockData.getCreatedInsrcEventRequest();
 
         createdInsuranceDTO = createdInsrcEventDTO.getCreatedInsurance();
+
+        httpClient = mock(HttpClient.class);
+        mapperHelper.setHttpClient(httpClient);
+
+        pisdR012 = mock(PISDR012.class);
+        mapperHelper.setPisdR012(pisdR012);
 
         pisdR021 = mock(PISDR021.class);
         mapperHelper.setPisdR021(pisdR021);
@@ -183,6 +201,8 @@ public class MapperHelperTest {
     @Test
     public void createEmailServiceRequestVehicle() {
 
+        when(this.applicationConfigurationService.getProperty("mail.subject.vehicle")).thenReturn("!Genial! Acabas de comprar tu seguro vehicular con éxito");
+
         createdInsuranceDTO.getProduct().setId("830");
 
         when(requiredFieldsEmissionDAO.getVehicleLicenseId()).thenReturn("license");
@@ -198,7 +218,6 @@ public class MapperHelperTest {
         assertNotNull(validation);
         assertNotNull(validation.getApplicationId());
         assertNotNull(validation.getRecipient());
-        assertNotNull(validation.getSubject());
         assertNotNull(validation.getSubject());
         assertNotNull(validation.getBody());
         assertNotNull(validation.getSender());
@@ -220,6 +239,9 @@ public class MapperHelperTest {
 
     @Test
     public void createEmailServiceRequestHome() {
+
+        when(this.applicationConfigurationService.getProperty("mail.subject.home")).thenReturn("!Genial! Acabas de comprar tu Seguro Hogar Total con éxito");
+
         when(responseQueryGetHomeInfo.get(HomeInsuranceProperty.FIELD_DEPARTMENT_NAME.getValue())).thenReturn("department_name");
         when(responseQueryGetHomeInfo.get(HomeInsuranceProperty.FIELD_PROVINCE_NAME.getValue())).thenReturn("province_name");
         when(responseQueryGetHomeInfo.get(HomeInsuranceProperty.FIELD_DISTRICT_NAME.getValue())).thenReturn("district_name");
@@ -265,6 +287,138 @@ public class MapperHelperTest {
         validation = this.mapperHelper.createEmailServiceRequest(createdInsuranceDTO, requiredFieldsEmissionDAO, createdInsrcEventDAO, "customerName");
 
         assertNotNull(validation);
+    }
+
+    @Test
+    public void createEmailServiceRequestFlexipymeOK() {
+
+        createdInsuranceDTO.getProduct().setId("833");
+
+        when(this.applicationConfigurationService.getProperty("mail.subject.flexipyme")).thenReturn("FLEXIPYME_SUBJECT");
+
+        when(responseQueryGetHomeInfo.get(HomeInsuranceProperty.FIELD_DEPARTMENT_NAME.getValue())).thenReturn("department_name");
+        when(responseQueryGetHomeInfo.get(HomeInsuranceProperty.FIELD_PROVINCE_NAME.getValue())).thenReturn("province_name");
+        when(responseQueryGetHomeInfo.get(HomeInsuranceProperty.FIELD_DISTRICT_NAME.getValue())).thenReturn("district_name");
+        when(responseQueryGetHomeInfo.get(HomeInsuranceProperty.FIELD_HOUSING_TYPE.getValue())).thenReturn("housing_type");
+        when(responseQueryGetHomeInfo.get(HomeInsuranceProperty.FIELD_AREA_PROPERTY_1_NUMBER.getValue())).thenReturn(BigDecimal.valueOf(200));
+        when(responseQueryGetHomeInfo.get(HomeInsuranceProperty.FIELD_PROP_SENIORITY_YEARS_NUMBER.getValue())).thenReturn(BigDecimal.valueOf(16));
+        when(responseQueryGetHomeInfo.get(HomeInsuranceProperty.FIELD_FLOOR_NUMBER.getValue())).thenReturn(BigDecimal.valueOf(3));
+        when(responseQueryGetHomeInfo.get(HomeInsuranceProperty.FIELD_EDIFICATION_LOAN_AMOUNT.getValue())).thenReturn(BigDecimal.valueOf(50000));
+        when(responseQueryGetHomeInfo.get(HomeInsuranceProperty.FIELD_HOUSING_ASSETS_LOAN_AMOUNT.getValue())).thenReturn(BigDecimal.valueOf(15000));
+
+        when(pisdR021.executeGetHomeInfoForEmissionService(anyString())).thenReturn(responseQueryGetHomeInfo);
+
+        when(responseQueryGetHomeRiskDirection.get(HomeInsuranceProperty.FIELD_LEGAL_ADDRESS_DESC.getValue())).thenReturn("riskDirection");
+
+        when(pisdR021.executeGetHomeRiskDirection(anyString())).thenReturn(responseQueryGetHomeRiskDirection);
+
+        when(this.applicationConfigurationService.getProperty("L")).thenReturn("DNI");
+
+        Map<String, Object> responseGettingLegalRep = new HashMap<>();
+        responseGettingLegalRep.put(RBVDProperties.FIELD_PERSONAL_DOC_TYPE.getValue(), "L");
+        responseGettingLegalRep.put(RBVDProperties.FIELD_PARTICIPANT_PERSONAL_ID.getValue(), "12345678");
+
+        when(this.pisdR012.executeGetASingleRow(anyString(), anyMap())).thenReturn(responseGettingLegalRep);
+
+        CreateEmailASO validation = this.mapperHelper.createEmailServiceRequest(createdInsuranceDTO, requiredFieldsEmissionDAO, createdInsrcEventDAO, "customerName");
+
+        assertNotNull(validation);
+
+        when(responseQueryGetHomeInfo.get(HomeInsuranceProperty.FIELD_HOUSING_TYPE.getValue())).thenReturn("P");
+        when(responseQueryGetHomeInfo.get(HomeInsuranceProperty.FIELD_EDIFICATION_LOAN_AMOUNT.getValue())).thenReturn(null);
+
+        when(createdInsrcEventDAO.getRimacPolicy()).thenReturn(null);
+
+        when(this.pisdR012.executeGetASingleRow(anyString(), anyMap())).thenReturn(null);
+
+        when(this.applicationConfigurationService.getProperty("policyWithoutNumber")).thenReturn("En proceso");
+
+        validation = this.mapperHelper.createEmailServiceRequest(createdInsuranceDTO, requiredFieldsEmissionDAO, createdInsrcEventDAO, "customerName");
+
+        assertNotNull(validation);
+
+        createdInsuranceDTO.getHolder().getIdentityDocument().getDocumentType().setId("RUC");
+        createdInsuranceDTO.getHolder().getIdentityDocument().setDocumentNumber("2088893512");
+
+        when(this.httpClient.executeCypherService(anyObject())).thenReturn("encryptedValue");
+
+        ListBusinessesASO listBusinesses = new ListBusinessesASO();
+        BusinessASO business = new BusinessASO();
+        business.setLegalName("legalName");
+        listBusinesses.setData(singletonList(business));
+
+        when(this.httpClient.executeGetListBusinesses(anyString(), anyString())).thenReturn(listBusinesses);
+
+        validation = this.mapperHelper.createEmailServiceRequest(createdInsuranceDTO, requiredFieldsEmissionDAO, createdInsrcEventDAO, "customerName");
+
+        assertNotNull(validation);
+
+    }
+
+    @Test(expected = BusinessException.class)
+    public void createEmailServiceRequestFlexipymeWithCypherRestException() {
+
+        createdInsuranceDTO.getProduct().setId("833");
+
+        when(this.applicationConfigurationService.getProperty("mail.subject.flexipyme")).thenReturn("FLEXIPYME_SUBJECT");
+
+        when(responseQueryGetHomeInfo.get(HomeInsuranceProperty.FIELD_DEPARTMENT_NAME.getValue())).thenReturn("department_name");
+        when(responseQueryGetHomeInfo.get(HomeInsuranceProperty.FIELD_PROVINCE_NAME.getValue())).thenReturn("province_name");
+        when(responseQueryGetHomeInfo.get(HomeInsuranceProperty.FIELD_DISTRICT_NAME.getValue())).thenReturn("district_name");
+        when(responseQueryGetHomeInfo.get(HomeInsuranceProperty.FIELD_HOUSING_TYPE.getValue())).thenReturn("housing_type");
+        when(responseQueryGetHomeInfo.get(HomeInsuranceProperty.FIELD_AREA_PROPERTY_1_NUMBER.getValue())).thenReturn(BigDecimal.valueOf(200));
+        when(responseQueryGetHomeInfo.get(HomeInsuranceProperty.FIELD_PROP_SENIORITY_YEARS_NUMBER.getValue())).thenReturn(BigDecimal.valueOf(16));
+        when(responseQueryGetHomeInfo.get(HomeInsuranceProperty.FIELD_FLOOR_NUMBER.getValue())).thenReturn(BigDecimal.valueOf(3));
+        when(responseQueryGetHomeInfo.get(HomeInsuranceProperty.FIELD_EDIFICATION_LOAN_AMOUNT.getValue())).thenReturn(BigDecimal.valueOf(50000));
+        when(responseQueryGetHomeInfo.get(HomeInsuranceProperty.FIELD_HOUSING_ASSETS_LOAN_AMOUNT.getValue())).thenReturn(BigDecimal.valueOf(15000));
+
+        when(pisdR021.executeGetHomeInfoForEmissionService(anyString())).thenReturn(responseQueryGetHomeInfo);
+
+        when(responseQueryGetHomeRiskDirection.get(HomeInsuranceProperty.FIELD_LEGAL_ADDRESS_DESC.getValue())).thenReturn("riskDirection");
+
+        when(pisdR021.executeGetHomeRiskDirection(anyString())).thenReturn(responseQueryGetHomeRiskDirection);
+
+        createdInsuranceDTO.getHolder().getIdentityDocument().getDocumentType().setId("RUC");
+        createdInsuranceDTO.getHolder().getIdentityDocument().setDocumentNumber("2088893512");
+
+        when(this.httpClient.executeCypherService(anyObject())).thenReturn(null);
+
+        this.mapperHelper.createEmailServiceRequest(createdInsuranceDTO, requiredFieldsEmissionDAO, createdInsrcEventDAO, "customerName");
+
+    }
+
+    @Test(expected = BusinessException.class)
+    public void createEmailServiceRequestFlexipymeWithListBusinessRestException() {
+
+        createdInsuranceDTO.getProduct().setId("833");
+
+        when(this.applicationConfigurationService.getProperty("mail.subject.flexipyme")).thenReturn("FLEXIPYME_SUBJECT");
+
+        when(responseQueryGetHomeInfo.get(HomeInsuranceProperty.FIELD_DEPARTMENT_NAME.getValue())).thenReturn("department_name");
+        when(responseQueryGetHomeInfo.get(HomeInsuranceProperty.FIELD_PROVINCE_NAME.getValue())).thenReturn("province_name");
+        when(responseQueryGetHomeInfo.get(HomeInsuranceProperty.FIELD_DISTRICT_NAME.getValue())).thenReturn("district_name");
+        when(responseQueryGetHomeInfo.get(HomeInsuranceProperty.FIELD_HOUSING_TYPE.getValue())).thenReturn("housing_type");
+        when(responseQueryGetHomeInfo.get(HomeInsuranceProperty.FIELD_AREA_PROPERTY_1_NUMBER.getValue())).thenReturn(BigDecimal.valueOf(200));
+        when(responseQueryGetHomeInfo.get(HomeInsuranceProperty.FIELD_PROP_SENIORITY_YEARS_NUMBER.getValue())).thenReturn(BigDecimal.valueOf(16));
+        when(responseQueryGetHomeInfo.get(HomeInsuranceProperty.FIELD_FLOOR_NUMBER.getValue())).thenReturn(BigDecimal.valueOf(3));
+        when(responseQueryGetHomeInfo.get(HomeInsuranceProperty.FIELD_EDIFICATION_LOAN_AMOUNT.getValue())).thenReturn(BigDecimal.valueOf(50000));
+        when(responseQueryGetHomeInfo.get(HomeInsuranceProperty.FIELD_HOUSING_ASSETS_LOAN_AMOUNT.getValue())).thenReturn(BigDecimal.valueOf(15000));
+
+        when(pisdR021.executeGetHomeInfoForEmissionService(anyString())).thenReturn(responseQueryGetHomeInfo);
+
+        when(responseQueryGetHomeRiskDirection.get(HomeInsuranceProperty.FIELD_LEGAL_ADDRESS_DESC.getValue())).thenReturn("riskDirection");
+
+        when(pisdR021.executeGetHomeRiskDirection(anyString())).thenReturn(responseQueryGetHomeRiskDirection);
+
+        createdInsuranceDTO.getHolder().getIdentityDocument().getDocumentType().setId("RUC");
+        createdInsuranceDTO.getHolder().getIdentityDocument().setDocumentNumber("2088893512");
+
+        when(this.httpClient.executeCypherService(anyObject())).thenReturn("encryptedValue");
+
+        when(this.httpClient.executeGetListBusinesses(anyString(), anyString())).thenReturn(null);
+
+        this.mapperHelper.createEmailServiceRequest(createdInsuranceDTO, requiredFieldsEmissionDAO, createdInsrcEventDAO, "customerName");
+
     }
 
     @Test
