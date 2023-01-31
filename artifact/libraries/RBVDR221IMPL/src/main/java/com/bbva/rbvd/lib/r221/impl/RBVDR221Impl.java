@@ -67,9 +67,10 @@ public class RBVDR221Impl extends RBVDR221Abstract {
 		}
 
 		LOGGER.info("***** RBVDR221Impl - executeCreatedInsrcEvntBusinessLogic ***** Building CreateEmailASO object");
-		CreateEmailASO emailRequest = this.mapperHelper.createEmailServiceRequest(createdInsuranceDTO, emissionDAO, createdInsrcEventDAO, fullName);
+		CreateEmailASO emailRequest = null;
 
 		try {
+			emailRequest = this.mapperHelper.createEmailServiceRequest(createdInsuranceDTO, emissionDAO, createdInsrcEventDAO, fullName);
 			this.httpClient.executeMailSendService(emailRequest);
 		} catch (BusinessException ex) {
 			this.httpClient.executeSetAlarmStatus(this.createAlarmErrorRequest("createEmail"));

@@ -9,6 +9,9 @@ import com.bbva.pisd.dto.insurance.aso.gifole.GifoleInsuranceRequestASO;
 
 import com.bbva.pisd.dto.insurance.bo.customer.CustomerBO;
 import com.bbva.pisd.dto.insurance.mock.MockDTO;
+import com.bbva.rbvd.dto.insrncsale.aso.cypher.CypherASO;
+import com.bbva.rbvd.dto.insrncsale.aso.cypher.CypherDataASO;
+import com.bbva.rbvd.dto.insrncsale.aso.listbusinesses.ListBusinessesASO;
 import com.bbva.rbvd.dto.insrncsale.sigma.SigmaSetAlarmStatusDTO;
 import com.bbva.rbvd.lib.r221.factory.ApiConnectorFactoryMock;
 import com.bbva.rbvd.lib.r221.impl.util.HttpClient;
@@ -24,6 +27,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClientException;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -115,6 +119,52 @@ public class HttpClientTest {
                 .thenThrow(new RestClientException(errorMessage));
 
         CustomerBO validation = this.httpClient.executeListCustomerService("customerId");
+
+        assertNull(validation);
+    }
+
+    @Test
+    public void executeCypherServiceOK() {
+        CypherASO response = new CypherASO();
+        CypherDataASO data = new CypherDataASO();
+        data.setDocument("encryptedCode");
+        response.setData(data);
+
+        when(this.internalApiConnector.postForObject(anyString(), anyObject(), any())).thenReturn(response);
+
+        String validation = this.httpClient.executeCypherService(new CypherASO("ABC", "apx-pe-fpextff1-do"));
+
+        assertNotNull(validation);
+    }
+
+    @Test
+    public void executeCypherServiceWithRestClientException() {
+        when(this.internalApiConnector.postForObject(anyString(), anyObject(), any()))
+                .thenThrow(new RestClientException(errorMessage));
+
+        String validation = this.httpClient.executeCypherService(new CypherASO("ABC", "apx-pe-fpextff1-do"));
+
+        assertNull(validation);
+    }
+
+    @Test
+    public void executeGetListBusinessesOK() {
+        ListBusinessesASO businesses = new ListBusinessesASO();
+        businesses.setData(new ArrayList<>());
+        when(internalApiConnector.getForObject(anyString(), any(), anyMap()))
+                .thenReturn(businesses);
+
+        ListBusinessesASO validation = this.httpClient.executeGetListBusinesses("90008603", "expands");
+
+        assertNotNull(validation);
+    }
+
+    @Test
+    public void executeGetListBusinessesWithRestClientException() {
+        when(internalApiConnector.getForObject(anyString(), any(), anyMap()))
+                .thenThrow(new RestClientException(errorMessage));
+
+        ListBusinessesASO validation = this.httpClient.executeGetListBusinesses("90008603", null);
 
         assertNull(validation);
     }
