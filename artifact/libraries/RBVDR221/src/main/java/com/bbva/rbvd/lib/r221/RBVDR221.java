@@ -1,9 +1,9 @@
 package com.bbva.rbvd.lib.r221;
 
-import com.bbva.rbvd.dto.insrncsale.events.CreatedInsuranceDTO;
+import com.bbva.rbvd.dto.insrncsale.events.CreatedInsrcEventDTO;
 
 public interface RBVDR221 {
 
-	Boolean executeCreatedInsrcEvent(CreatedInsuranceDTO createdInsuranceDTO);
+	Boolean executeCreatedInsrcEvent(CreatedInsrcEventDTO createdInsrcEvent);
 
 }

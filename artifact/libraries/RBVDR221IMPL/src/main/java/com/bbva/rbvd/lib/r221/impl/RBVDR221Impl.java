@@ -1,17 +1,24 @@
 package com.bbva.rbvd.lib.r221.impl;
 
 import com.bbva.apx.exception.business.BusinessException;
+
 import com.bbva.pisd.dto.insurance.aso.email.CreateEmailASO;
 import com.bbva.pisd.dto.insurance.aso.gifole.GifoleInsuranceRequestASO;
 
 import com.bbva.pisd.dto.insurance.bo.customer.CustomerBO;
+import com.bbva.pisd.dto.insurance.utils.PISDErrors;
 import com.bbva.pisd.dto.insurance.utils.PISDProperties;
 
+import com.bbva.pisd.dto.insurance.utils.PISDValidation;
 import com.bbva.rbvd.dto.insrncsale.dao.CreatedInsrcEventDAO;
 import com.bbva.rbvd.dto.insrncsale.dao.RequiredFieldsEmissionDAO;
 
+import com.bbva.rbvd.dto.insrncsale.events.CreatedInsrcEventDTO;
 import com.bbva.rbvd.dto.insrncsale.events.CreatedInsuranceDTO;
+
+import com.bbva.rbvd.dto.insrncsale.events.header.BankEventDTO;
 import com.bbva.rbvd.dto.insrncsale.sigma.SigmaSetAlarmStatusDTO;
+
 import com.bbva.rbvd.dto.insrncsale.utils.RBVDProperties;
 
 import org.slf4j.Logger;
@@ -22,8 +29,7 @@ import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.google.common.base.Strings.nullToEmpty;
-import static java.util.Objects.nonNull;
+import static java.util.Objects.isNull;
 
 public class RBVDR221Impl extends RBVDR221Abstract {
 
@@ -32,11 +38,12 @@ public class RBVDR221Impl extends RBVDR221Abstract {
 	private static final String STATUS_ALARM = "CRITICAL";
 
 	@Override
-	public Boolean executeCreatedInsrcEvent(CreatedInsuranceDTO createdInsuranceDTO) {
+	public Boolean executeCreatedInsrcEvent(CreatedInsrcEventDTO createdInsrcEvent) {
 		LOGGER.info("***** RBVDR221Impl - executeCreatedInsrcEvntBusinessLogic START *****");
-		LOGGER.info("***** RBVDR221Impl - executeCreatedInsrcEvntBusinessLogic RequestBody {} *****", createdInsuranceDTO);
+		LOGGER.info("***** RBVDR221Impl - executeCreatedInsrcEvntBusinessLogic RequestBody {} *****", createdInsrcEvent);
 
-		LOGGER.info("***** RBVDR221Impl - executeCreatedInsrcEvntBusinessLogic ***** Executing PISDR012 executeGetRequiredFieldsForEmissionService method with id {}", createdInsuranceDTO.getQuotationId());
+		CreatedInsuranceDTO createdInsuranceDTO = createdInsrcEvent.getCreatedInsurance();
+
 		Map<String, Object> argumentsForGetRequiredFields = new HashMap<>();
 		argumentsForGetRequiredFields.put(RBVDProperties.FIELD_POLICY_QUOTA_INTERNAL_ID.getValue(), createdInsuranceDTO.getQuotationId());
 
@@ -53,24 +60,17 @@ public class RBVDR221Impl extends RBVDR221Abstract {
 
 		CustomerBO customerInformation = this.httpClient.executeListCustomerService(createdInsuranceDTO.getHolder().getId());
 
-		String name = "";
-
-		String lastName = "";
-
-		String fullName = "N/A";
-
-		if(nonNull(customerInformation)) {
-			name = nullToEmpty(customerInformation.getFirstName());
-			lastName = nullToEmpty(customerInformation.getLastName()) + " " + nullToEmpty(customerInformation.getSecondLastName());
-			fullName = name + " " + lastName;
-			fullName = fullName.replace("#", "Ñ");
+		try {
+			this.validateCustomerInformation(customerInformation);
+		} catch (BusinessException ex) {
+			this.addAdviceWithDescription(ex.getAdviceCode(), ex.getMessage());
+			return false;
 		}
 
 		LOGGER.info("***** RBVDR221Impl - executeCreatedInsrcEvntBusinessLogic ***** Building CreateEmailASO object");
-		CreateEmailASO emailRequest = null;
 
 		try {
-			emailRequest = this.mapperHelper.createEmailServiceRequest(createdInsuranceDTO, emissionDAO, createdInsrcEventDAO, fullName);
+			CreateEmailASO emailRequest = this.mapperHelper.createEmailServiceRequest(createdInsuranceDTO, emissionDAO, createdInsrcEventDAO, customerInformation);
 			this.httpClient.executeMailSendService(emailRequest);
 		} catch (BusinessException ex) {
 			this.httpClient.executeSetAlarmStatus(this.createAlarmErrorRequest("createEmail"));
@@ -79,10 +79,11 @@ public class RBVDR221Impl extends RBVDR221Abstract {
 		}
 
 		LOGGER.info("***** RBVDR221Impl - executeCreatedInsrcEvntBusinessLogic ***** Building GifoleInsuranceRequestASO object");
-		GifoleInsuranceRequestASO gifoleRequest = this.mapperHelper.createGifoleServiceRequest(createdInsuranceDTO, createdInsrcEventDAO,
-														emissionDAO, name, lastName);
 
 		try {
+			BankEventDTO bank = createdInsrcEvent.getHeader().getOrigin().getBank();
+			GifoleInsuranceRequestASO gifoleRequest = this.mapperHelper.createGifoleServiceRequest(createdInsuranceDTO, createdInsrcEventDAO,
+					emissionDAO, customerInformation, bank);
 			this.httpClient.executeGifoleService(gifoleRequest);
 		} catch (BusinessException ex) {
 			this.httpClient.executeSetAlarmStatus(this.createAlarmErrorRequest("createGifoleInsuranceRequest"));
@@ -92,6 +93,12 @@ public class RBVDR221Impl extends RBVDR221Abstract {
 
 		LOGGER.info("***** RBVDR221Impl - executeCreatedInsrcEvntBusinessLogic END *****");
 		return true;
+	}
+
+	private void validateCustomerInformation(CustomerBO customerInformation) {
+		if(isNull(customerInformation)) {
+			throw PISDValidation.build(PISDErrors.ERROR_CONNECTION_VALIDATE_CUSTOMER_SERVICE);
+		}
 	}
 
 	private RequiredFieldsEmissionDAO buildEmissionRequiredFieldsDAO(Map<String, Object> responseGetRequiredFields) {

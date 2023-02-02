@@ -14,6 +14,7 @@ import java.util.ArrayList;
 
 import com.bbva.rbvd.dto.insrncsale.events.CreatedInsuranceDTO;
 
+import com.bbva.rbvd.dto.insrncsale.events.header.HeaderDTO;
 import com.bbva.rbvd.lib.r221.RBVDR221;
 
 import org.junit.Before;
@@ -68,6 +69,7 @@ public class RBVDT21101PETransactionTest {
 		when(this.header.getHeaderParameter(RequestHeaderParamsName.AAP)).thenReturn("13000004");
 
 		addParameter("createdInsurance", new CreatedInsuranceDTO());
+		addParameter("header", new HeaderDTO());
 
 		this.transactionRequest.setHeader(header);
 		this.transaction.getContext().setTransactionRequest(transactionRequest);
