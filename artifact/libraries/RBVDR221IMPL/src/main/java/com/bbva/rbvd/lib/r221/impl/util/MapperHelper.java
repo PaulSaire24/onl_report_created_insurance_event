@@ -12,14 +12,19 @@ import com.bbva.pisd.dto.insurance.aso.gifole.DocumentTypeASO;
 import com.bbva.pisd.dto.insurance.aso.gifole.IdentityDocumentASO;
 import com.bbva.pisd.dto.insurance.aso.gifole.ContactDetailASO;
 import com.bbva.pisd.dto.insurance.aso.gifole.ContactASO;
+import com.bbva.pisd.dto.insurance.aso.gifole.RelatedContractASO;
 import com.bbva.pisd.dto.insurance.aso.gifole.InsuranceASO;
 import com.bbva.pisd.dto.insurance.aso.gifole.PaymentMethodASO;
-import com.bbva.pisd.dto.insurance.aso.gifole.RelatedContractASO;
-import com.bbva.pisd.dto.insurance.aso.gifole.ProductASO;
-import com.bbva.pisd.dto.insurance.aso.gifole.PlanASO;
-import com.bbva.pisd.dto.insurance.aso.gifole.InstallmentPlanASO;
 import com.bbva.pisd.dto.insurance.aso.gifole.PeriodASO;
+import com.bbva.pisd.dto.insurance.aso.gifole.InstallmentPlanASO;
+import com.bbva.pisd.dto.insurance.aso.gifole.PlanASO;
+import com.bbva.pisd.dto.insurance.aso.gifole.ProductASO;
 import com.bbva.pisd.dto.insurance.aso.gifole.AmountASO;
+import com.bbva.pisd.dto.insurance.aso.gifole.BankASO;
+import com.bbva.pisd.dto.insurance.aso.gifole.BranchASO;
+
+import com.bbva.pisd.dto.insurance.bo.ContactDetailsBO;
+import com.bbva.pisd.dto.insurance.bo.customer.CustomerBO;
 
 import com.bbva.pisd.lib.r012.PISDR012;
 import com.bbva.pisd.lib.r021.PISDR021;
@@ -30,18 +35,21 @@ import com.bbva.rbvd.dto.homeinsrc.utils.HomeInsuranceProperty;
 
 import com.bbva.rbvd.dto.insrncsale.aso.cypher.CypherASO;
 import com.bbva.rbvd.dto.insrncsale.aso.listbusinesses.ListBusinessesASO;
+
 import com.bbva.rbvd.dto.insrncsale.dao.CreatedInsrcEventDAO;
 import com.bbva.rbvd.dto.insrncsale.dao.RequiredFieldsEmissionDAO;
 
 import com.bbva.rbvd.dto.insrncsale.events.CreatedInsuranceDTO;
 import com.bbva.rbvd.dto.insrncsale.events.InstallmentPlansCreatedInsrcEvent;
 
+import com.bbva.rbvd.dto.insrncsale.events.header.BankEventDTO;
 import com.bbva.rbvd.dto.insrncsale.utils.HolderTypeEnum;
 import com.bbva.rbvd.dto.insrncsale.utils.RBVDErrors;
 import com.bbva.rbvd.dto.insrncsale.utils.RBVDProperties;
 import com.bbva.rbvd.dto.insrncsale.utils.RBVDValidation;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.ObjectUtils;
 
 import java.math.BigDecimal;
@@ -64,10 +72,13 @@ import static java.math.BigDecimal.valueOf;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
 
+import static com.google.common.base.Strings.nullToEmpty;
+
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 import static java.util.stream.Collectors.toList;
+import static org.springframework.util.StringUtils.isEmpty;
 
 public class MapperHelper {
 
@@ -90,7 +101,7 @@ public class MapperHelper {
     private PISDR012 pisdR012;
 
     public GifoleInsuranceRequestASO createGifoleServiceRequest(CreatedInsuranceDTO createdInsuranceDTO, CreatedInsrcEventDAO createdInsrcEventDAO,
-                                                                RequiredFieldsEmissionDAO emissionDAO, String name, String lastName) {
+                                                                RequiredFieldsEmissionDAO emissionDAO, CustomerBO customerInformation, BankEventDTO bank) {
         GifoleInsuranceRequestASO gifoleRequest = new GifoleInsuranceRequestASO();
 
         QuotationASO quotation = new QuotationASO();
@@ -115,10 +126,19 @@ public class MapperHelper {
 
         gifoleRequest.setValidityPeriod(validityPeriod);
 
+        String name = "";
+
+        String lastName = "";
+
+        if(nonNull(customerInformation)) {
+            name = nullToEmpty(customerInformation.getFirstName());
+            lastName = nullToEmpty(customerInformation.getLastName()) + " " + nullToEmpty(customerInformation.getSecondLastName());
+        }
+
         HolderASO holder = new HolderASO();
+
         holder.setFirstName(name);
         holder.setLastName(lastName);
-
         holder.setIsBankCustomer(true);
         holder.setIsDataTreatment(true);
 
@@ -220,6 +240,14 @@ public class MapperHelper {
 
         gifoleRequest.setTotalPremiumAmount(totalPremiumAmount);
 
+        BankASO bankGifole = new BankASO();
+        bankGifole.setId(bank.getBankId());
+        BranchASO branchGifole = new BranchASO();
+        branchGifole.setId(bank.getBranch().getBranchId());
+        bankGifole.setBranch(branchGifole);
+
+        gifoleRequest.setBank(bankGifole);
+
         String operationType = this.applicationConfigurationService.getProperty("emission-gifole-operation");
 
         gifoleRequest.setOperationType(operationType);
@@ -228,11 +256,24 @@ public class MapperHelper {
     }
 
     public CreateEmailASO createEmailServiceRequest(CreatedInsuranceDTO requestBody, RequiredFieldsEmissionDAO emissionDao,
-                                                    CreatedInsrcEventDAO createdInsrcEventDao, String customerName) {
+                                                    CreatedInsrcEventDAO createdInsrcEventDao, CustomerBO customerInformation) {
 
         CreateEmailASO createEmailASO = null;
 
         String productId = requestBody.getProduct().getId();
+
+        String name = "";
+
+        String lastName = "";
+
+        String fullName = "N/A";
+
+        if(nonNull(customerInformation)) {
+            name = nullToEmpty(customerInformation.getFirstName());
+            lastName = nullToEmpty(customerInformation.getLastName()) + " " + nullToEmpty(customerInformation.getSecondLastName());
+            fullName = name + " " + lastName;
+            fullName = fullName.replace("#", "Ñ");
+        }
 
         switch (productId) {
             case "830":
@@ -247,16 +288,16 @@ public class MapperHelper {
                 String riskDirection = (String) responseQueryGetHomeRiskDirection.get(HomeInsuranceProperty.FIELD_LEGAL_ADDRESS_DESC.getValue());
 
                 if("832".equals(productId)) {
-                    createEmailASO = buildHomeEmailRequest(requestBody, emissionDao, createdInsrcEventDao, simltInsuredHousingDAO, customerName, riskDirection);
+                    createEmailASO = buildHomeEmailRequest(requestBody, emissionDao, createdInsrcEventDao, simltInsuredHousingDAO, fullName, riskDirection);
                 } else {
                     String legalName = this.getLegalName(requestBody);
                     createEmailASO = buildFlexiPymeEmailRequest(requestBody, emissionDao, createdInsrcEventDao,
-                            simltInsuredHousingDAO, customerName, riskDirection, legalName);
+                            simltInsuredHousingDAO, riskDirection, customerInformation, legalName);
                 }
 
                 break;
             default:
-                createEmailASO = buildGeneralEmailRequest(requestBody, emissionDao, createdInsrcEventDao, customerName);
+                createEmailASO = buildGeneralEmailRequest(requestBody, emissionDao, createdInsrcEventDao, fullName);
                 break;
         }
 
@@ -297,15 +338,39 @@ public class MapperHelper {
         return homeEmail;
     }
 
-    private CreateEmailASO buildFlexiPymeEmailRequest(CreatedInsuranceDTO requestBody, RequiredFieldsEmissionDAO emissionDao,
-                                                      CreatedInsrcEventDAO createdInsrcEventDao, SimltInsuredHousingDAO simltInsuredHousingDAO,
-                                                      String customerName, String riskDirection, String legalName) {
+    private CreateEmailASO buildFlexiPymeEmailRequest(final CreatedInsuranceDTO requestBody, final RequiredFieldsEmissionDAO emissionDao,
+                                                      final CreatedInsrcEventDAO createdInsrcEventDao, final SimltInsuredHousingDAO simltInsuredHousingDAO,
+                                                      final String riskDirection, final CustomerBO customerInformation, final String legalName) {
 
         String flexiPymeCode = "PLT00991";
 
         CreateEmailASO email = new CreateEmailASO();
         email.setApplicationId(flexiPymeCode.concat(format.format(new Date())));
-        email.setRecipient("0,".concat(requestBody.getHolder().getContactDetails().get(0).getContact().getValue()));
+
+        String mainEmail = "";
+
+        String customerName = "";
+
+        if(nonNull(customerInformation)) {
+            mainEmail = customerInformation.getContactDetails().stream()
+                    .filter(contactDetail -> "EMAIL".equalsIgnoreCase(contactDetail.getContactType().getId()))
+                    .findFirst()
+                    .map(ContactDetailsBO::getContact)
+                    .orElse(null);
+
+            customerName = nullToEmpty(customerInformation.getFirstName()) + " " +
+                    nullToEmpty(customerInformation.getLastName()) + " " +
+                    nullToEmpty(customerInformation.getSecondLastName());
+
+            customerName = customerName.replace("#", "Ñ");
+        }
+
+        String incomingMail = requestBody.getHolder().getContactDetails().get(0).getContact().getValue();
+
+        String emailToUse = BooleanUtils.toString(isEmpty(mainEmail), incomingMail, mainEmail);
+
+        email.setRecipient("0,".concat(emailToUse));
+
         email.setSubject(this.applicationConfigurationService.getProperty(MAIL_SUJECT_FLEXIPYME));
         String[] data = this.getMailBodyDataFlexipyme(emissionDao, requestBody, createdInsrcEventDao,
                 customerName, simltInsuredHousingDAO, riskDirection, legalName);

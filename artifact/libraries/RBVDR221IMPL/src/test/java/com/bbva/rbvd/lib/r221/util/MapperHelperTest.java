@@ -5,6 +5,9 @@ import com.bbva.elara.configuration.manager.application.ApplicationConfiguration
 import com.bbva.pisd.dto.insurance.aso.email.CreateEmailASO;
 import com.bbva.pisd.dto.insurance.aso.gifole.GifoleInsuranceRequestASO;
 
+import com.bbva.pisd.dto.insurance.bo.ContactDetailsBO;
+import com.bbva.pisd.dto.insurance.bo.ContactTypeBO;
+import com.bbva.pisd.dto.insurance.bo.customer.CustomerBO;
 import com.bbva.pisd.lib.r012.PISDR012;
 import com.bbva.pisd.lib.r021.PISDR021;
 import com.bbva.rbvd.dto.homeinsrc.utils.HomeInsuranceProperty;
@@ -17,6 +20,8 @@ import com.bbva.rbvd.dto.insrncsale.events.CreatedInsrcEventDTO;
 import com.bbva.rbvd.dto.insrncsale.events.CreatedInsuranceDTO;
 import com.bbva.rbvd.dto.insrncsale.events.InstallmentPlansCreatedInsrcEvent;
 
+import com.bbva.rbvd.dto.insrncsale.events.header.BankEventDTO;
+import com.bbva.rbvd.dto.insrncsale.events.header.BranchEventDTO;
 import com.bbva.rbvd.dto.insrncsale.mock.MockData;
 
 import com.bbva.rbvd.dto.insrncsale.utils.RBVDProperties;
@@ -28,6 +33,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -55,7 +61,6 @@ public class MapperHelperTest {
     private RequiredFieldsEmissionDAO requiredFieldsEmissionDAO;
     private ApplicationConfigurationService applicationConfigurationService;
 
-    private CreatedInsrcEventDTO createdInsrcEventDTO;
     private CreatedInsuranceDTO createdInsuranceDTO;
 
     private HttpClient httpClient;
@@ -81,7 +86,7 @@ public class MapperHelperTest {
         when(requiredFieldsEmissionDAO.getInsuranceModalityName()).thenReturn("PLAN BASICO");
         when(requiredFieldsEmissionDAO.getPaymentFrequencyName()).thenReturn("Mensual");
 
-        createdInsrcEventDTO = mockData.getCreatedInsrcEventRequest();
+        CreatedInsrcEventDTO createdInsrcEventDTO = mockData.getCreatedInsrcEventRequest();
 
         createdInsuranceDTO = createdInsrcEventDTO.getCreatedInsurance();
 
@@ -106,8 +111,19 @@ public class MapperHelperTest {
 
         when(applicationConfigurationService.getProperty(anyString())).thenReturn("INSURANCE_CREATION");
 
-        GifoleInsuranceRequestASO validation = this.mapperHelper.createGifoleServiceRequest(createdInsuranceDTO, createdInsrcEventDAO, requiredFieldsEmissionDAO,
-                                            "name", "lastName");
+        CustomerBO customer = new CustomerBO();
+        customer.setFirstName("Pepe");
+        customer.setLastName("Fulano");
+        customer.setSecondLastName("Sultano");
+
+        BankEventDTO bank = new BankEventDTO();
+        bank.setBankId("bankId");
+        BranchEventDTO branch = new BranchEventDTO();
+        branch.setBranchId("branchId");
+        bank.setBranch(branch);
+
+        GifoleInsuranceRequestASO validation = this.mapperHelper.createGifoleServiceRequest(createdInsuranceDTO, createdInsrcEventDAO,
+                requiredFieldsEmissionDAO, customer, bank);
 
         assertNotNull(validation);
 
@@ -180,6 +196,12 @@ public class MapperHelperTest {
         assertEquals(createdInsuranceDTO.getProduct().getPlan().getTotalInstallment().getCurrency(),
                 validation.getTotalPremiumAmount().getCurrency());
 
+        assertNotNull(validation.getBank().getId());
+        assertNotNull(validation.getBank().getBranch().getId());
+
+        assertEquals("bankId", validation.getBank().getId());
+        assertEquals("branchId", validation.getBank().getBranch().getId());
+
         assertEquals("INSURANCE_CREATION", validation.getOperationType());
 
         /* CASO PARA TIPO DE PAGO CON TARJETA */
@@ -187,11 +209,13 @@ public class MapperHelperTest {
         createdInsuranceDTO.getHolder().getContactDetails().clear();
 
         validation = this.mapperHelper.createGifoleServiceRequest(createdInsuranceDTO, createdInsrcEventDAO, requiredFieldsEmissionDAO,
-                    "name", "lastName");
+                    null, bank);
 
         assertTrue(validation.getHolder().getHasCreditCard());
         assertFalse(validation.getHolder().getHasBankAccount());
 
+        assertEquals("", validation.getHolder().getFirstName());
+        assertEquals("", validation.getHolder().getLastName());
         assertEquals("TARJETA", validation.getInsurance().getPaymentMethod().getId());
         assertEquals("Sin nro", validation.getHolder().getContactDetails().get(0).getContact().getPhoneNumber());
         assertEquals("Sin email", validation.getHolder().getContactDetails().get(1).getContact().getAddress());
@@ -213,7 +237,12 @@ public class MapperHelperTest {
         when(requiredFieldsEmissionDAO.getVehicleCirculationType()).thenReturn("L");
         when(requiredFieldsEmissionDAO.getCommercialVehicleAmount()).thenReturn(BigDecimal.valueOf(1000));
 
-        CreateEmailASO validation = this.mapperHelper.createEmailServiceRequest(createdInsuranceDTO, requiredFieldsEmissionDAO, createdInsrcEventDAO, "");
+        CustomerBO customer = new CustomerBO();
+        customer.setFirstName("PEPE");
+        customer.setLastName("FULA#O");
+        customer.setSecondLastName("SULTA#O");
+
+        CreateEmailASO validation = this.mapperHelper.createEmailServiceRequest(createdInsuranceDTO, requiredFieldsEmissionDAO, createdInsrcEventDAO, customer);
 
         assertNotNull(validation);
         assertNotNull(validation.getApplicationId());
@@ -231,7 +260,7 @@ public class MapperHelperTest {
         when(requiredFieldsEmissionDAO.getGasConversionType()).thenReturn("N");
         when(requiredFieldsEmissionDAO.getVehicleCirculationType()).thenReturn("P");
 
-        validation = this.mapperHelper.createEmailServiceRequest(createdInsuranceDTO, requiredFieldsEmissionDAO, createdInsrcEventDAO, "");
+        validation = this.mapperHelper.createEmailServiceRequest(createdInsuranceDTO, requiredFieldsEmissionDAO, createdInsrcEventDAO, null);
 
         assertNotNull(validation);
 
@@ -258,7 +287,12 @@ public class MapperHelperTest {
 
         when(pisdR021.executeGetHomeRiskDirection(anyString())).thenReturn(responseQueryGetHomeRiskDirection);
 
-        CreateEmailASO validation = this.mapperHelper.createEmailServiceRequest(createdInsuranceDTO, requiredFieldsEmissionDAO, createdInsrcEventDAO, "customerName");
+        CustomerBO customer = new CustomerBO();
+        customer.setFirstName("PEPE");
+        customer.setLastName("FULA#O");
+        customer.setSecondLastName("SULTA#O");
+
+        CreateEmailASO validation = this.mapperHelper.createEmailServiceRequest(createdInsuranceDTO, requiredFieldsEmissionDAO, createdInsrcEventDAO, customer);
 
         assertNotNull(validation);
         assertNotNull(validation.getApplicationId());
@@ -278,13 +312,13 @@ public class MapperHelperTest {
         when(responseQueryGetHomeInfo.get(HomeInsuranceProperty.FIELD_HOUSING_ASSETS_LOAN_AMOUNT.getValue())).thenReturn(null);
         when(createdInsrcEventDAO.getRimacPolicy()).thenReturn(null);
 
-        validation = this.mapperHelper.createEmailServiceRequest(createdInsuranceDTO, requiredFieldsEmissionDAO, createdInsrcEventDAO, "customerName");
+        validation = this.mapperHelper.createEmailServiceRequest(createdInsuranceDTO, requiredFieldsEmissionDAO, createdInsrcEventDAO, null);
 
         assertNotNull(validation);
 
         createdInsuranceDTO.getProduct().getPlan().setId("05");
 
-        validation = this.mapperHelper.createEmailServiceRequest(createdInsuranceDTO, requiredFieldsEmissionDAO, createdInsrcEventDAO, "customerName");
+        validation = this.mapperHelper.createEmailServiceRequest(createdInsuranceDTO, requiredFieldsEmissionDAO, createdInsrcEventDAO, null);
 
         assertNotNull(validation);
     }
@@ -320,7 +354,20 @@ public class MapperHelperTest {
 
         when(this.pisdR012.executeGetASingleRow(anyString(), anyMap())).thenReturn(responseGettingLegalRep);
 
-        CreateEmailASO validation = this.mapperHelper.createEmailServiceRequest(createdInsuranceDTO, requiredFieldsEmissionDAO, createdInsrcEventDAO, "customerName");
+        CustomerBO customer = new CustomerBO();
+        customer.setFirstName("PEPE");
+        customer.setLastName("FULA#O");
+        customer.setSecondLastName("SULTA#O");
+
+        ContactDetailsBO contactDetail = new ContactDetailsBO();
+        ContactTypeBO contactType = new ContactTypeBO();
+        contactType.setId("EMAIL");
+        contactDetail.setContact("correo@gmail.com");
+        contactDetail.setContactType(contactType);
+
+        customer.setContactDetails(singletonList(contactDetail));
+
+        CreateEmailASO validation = this.mapperHelper.createEmailServiceRequest(createdInsuranceDTO, requiredFieldsEmissionDAO, createdInsrcEventDAO, customer);
 
         assertNotNull(validation);
 
@@ -333,7 +380,9 @@ public class MapperHelperTest {
 
         when(this.applicationConfigurationService.getProperty("policyWithoutNumber")).thenReturn("En proceso");
 
-        validation = this.mapperHelper.createEmailServiceRequest(createdInsuranceDTO, requiredFieldsEmissionDAO, createdInsrcEventDAO, "customerName");
+        customer.setContactDetails(new ArrayList<>());
+
+        validation = this.mapperHelper.createEmailServiceRequest(createdInsuranceDTO, requiredFieldsEmissionDAO, createdInsrcEventDAO, customer);
 
         assertNotNull(validation);
 
@@ -349,7 +398,7 @@ public class MapperHelperTest {
 
         when(this.httpClient.executeGetListBusinesses(anyString(), anyString())).thenReturn(listBusinesses);
 
-        validation = this.mapperHelper.createEmailServiceRequest(createdInsuranceDTO, requiredFieldsEmissionDAO, createdInsrcEventDAO, "customerName");
+        validation = this.mapperHelper.createEmailServiceRequest(createdInsuranceDTO, requiredFieldsEmissionDAO, createdInsrcEventDAO, customer);
 
         assertNotNull(validation);
 
@@ -383,7 +432,7 @@ public class MapperHelperTest {
 
         when(this.httpClient.executeCypherService(anyObject())).thenReturn(null);
 
-        this.mapperHelper.createEmailServiceRequest(createdInsuranceDTO, requiredFieldsEmissionDAO, createdInsrcEventDAO, "customerName");
+        this.mapperHelper.createEmailServiceRequest(createdInsuranceDTO, requiredFieldsEmissionDAO, createdInsrcEventDAO, null);
 
     }
 
@@ -417,7 +466,7 @@ public class MapperHelperTest {
 
         when(this.httpClient.executeGetListBusinesses(anyString(), anyString())).thenReturn(null);
 
-        this.mapperHelper.createEmailServiceRequest(createdInsuranceDTO, requiredFieldsEmissionDAO, createdInsrcEventDAO, "customerName");
+        this.mapperHelper.createEmailServiceRequest(createdInsuranceDTO, requiredFieldsEmissionDAO, createdInsrcEventDAO, null);
 
     }
 
@@ -426,7 +475,7 @@ public class MapperHelperTest {
 
         createdInsuranceDTO.getProduct().setId("834");
 
-        CreateEmailASO validation = this.mapperHelper.createEmailServiceRequest(createdInsuranceDTO, requiredFieldsEmissionDAO, createdInsrcEventDAO, "customerName");
+        CreateEmailASO validation = this.mapperHelper.createEmailServiceRequest(createdInsuranceDTO, requiredFieldsEmissionDAO, createdInsrcEventDAO, null);
 
         assertNotNull(validation);
         assertNotNull(validation.getApplicationId());
@@ -442,6 +491,6 @@ public class MapperHelperTest {
 
         when(createdInsrcEventDAO.getRimacPolicy()).thenReturn(null);
 
-        validation = this.mapperHelper.createEmailServiceRequest(createdInsuranceDTO, requiredFieldsEmissionDAO, createdInsrcEventDAO, "customerName");
+        validation = this.mapperHelper.createEmailServiceRequest(createdInsuranceDTO, requiredFieldsEmissionDAO, createdInsrcEventDAO, null);
     }
 }
