@@ -400,7 +400,7 @@ public class MapperHelper {
         Locale locale = new Locale ("en", "UK");
         NumberFormat numberFormat = NumberFormat.getInstance (locale);
         bodyData[8] = Objects.nonNull(homeInfo.getEdificationLoanAmount()) ? numberFormat.format(homeInfo.getEdificationLoanAmount()) : "";
-        bodyData[9] = emissionDao.getPaymentFrequencyName();
+        bodyData[9] = createdInsrcEventDao.getPeriodName();
         bodyData[10] = numberFormat.format(requestBody.getProduct().getPlan().getInstallmentPlans().get(0).getPaymentAmount().getAmount());
 
         String intAccountId = createdInsrcEventDao.getContractNumber().substring(10);
