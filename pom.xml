@@ -8,7 +8,7 @@
 	</parent>
 	<artifactId>onl_report_created_insurance_event</artifactId>
 	<groupId>com.bbva.rbvd</groupId>
-	<version>0.1.6</version>
+	<version>0.1.7</version>
 	<packaging>pom</packaging>
 	<name>onl_report_created_insurance_event</name>
 	<description>Deployment unit onl_report_created_insurance_event of uuaa rbvd</description>
