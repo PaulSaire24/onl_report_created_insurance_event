@@ -625,7 +625,7 @@ public class MapperHelper {
         bodyData[2] = emissionDao.getInsuranceModalityName();
         bodyData[3] = createdInsrcEventDao.getInsuranceCompanyDesc();
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMMM yyyy", new Locale("es", "ES"));
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
 
         bodyData[4] = dateFormat.format(requestBody.getValidityPeriod().getStartDate());
         bodyData[5] = dateFormat.format(requestBody.getValidityPeriod().getEndDate());
