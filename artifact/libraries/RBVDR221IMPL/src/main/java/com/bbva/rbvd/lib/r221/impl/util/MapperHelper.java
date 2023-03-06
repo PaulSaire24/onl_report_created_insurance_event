@@ -52,6 +52,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.ObjectUtils;
 
+import org.joda.time.LocalDate;
+import org.joda.time.DateTimeZone;
+
 import java.math.BigDecimal;
 
 import java.text.NumberFormat;
@@ -627,8 +630,11 @@ public class MapperHelper {
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
 
-        bodyData[4] = dateFormat.format(requestBody.getValidityPeriod().getStartDate());
-        bodyData[5] = dateFormat.format(requestBody.getValidityPeriod().getEndDate());
+        LocalDate startDate = new LocalDate(requestBody.getValidityPeriod().getStartDate(), DateTimeZone.forID("GMT"));
+        LocalDate endDate = new LocalDate(requestBody.getValidityPeriod().getEndDate(), DateTimeZone.forID("GMT"));
+
+        bodyData[4] = dateFormat.format(startDate.toDateTimeAtStartOfDay().toDate());
+        bodyData[5] = dateFormat.format(endDate.toDateTimeAtStartOfDay().toDate());
 
         int beginIndex = requestBody.getPaymentMethod().getRelatedContracts().get(0).getNumber().length() - 4;
 
