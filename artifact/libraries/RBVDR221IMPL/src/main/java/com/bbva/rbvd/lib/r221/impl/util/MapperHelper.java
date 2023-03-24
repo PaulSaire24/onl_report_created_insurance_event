@@ -103,9 +103,23 @@ public class MapperHelper {
 
     private PISDR012 pisdR012;
 
-    public GifoleInsuranceRequestASO createGifoleServiceRequest(CreatedInsuranceDTO createdInsuranceDTO, CreatedInsrcEventDAO createdInsrcEventDAO,
-                                                                RequiredFieldsEmissionDAO emissionDAO, CustomerBO customerInformation, BankEventDTO bank) {
+    public GifoleInsuranceRequestASO createGifoleServiceRequest(final CreatedInsuranceDTO createdInsuranceDTO, final CreatedInsrcEventDAO createdInsrcEventDAO,
+                                                                final CustomerBO customerInformation, final BankEventDTO bank) {
         GifoleInsuranceRequestASO gifoleRequest = new GifoleInsuranceRequestASO();
+
+        ProductASO product = new ProductASO();
+        product.setId(createdInsuranceDTO.getProduct().getId());
+        product.setName(createdInsrcEventDAO.getInsuranceProductDesc());
+
+        PlanASO plan = new PlanASO();
+        plan.setId(createdInsuranceDTO.getProduct().getPlan().getId());
+        plan.setName(createdInsrcEventDAO.getInsuranceModalityName());
+
+        product.setPlan(plan);
+
+        gifoleRequest.setProduct(product);
+
+        settingRimacSimulationId(gifoleRequest, createdInsrcEventDAO.getInsrncCompanySimulationId());
 
         QuotationASO quotation = new QuotationASO();
         quotation.setId(createdInsuranceDTO.getQuotationId());
@@ -207,18 +221,6 @@ public class MapperHelper {
 
         gifoleRequest.setPolicyNumber(createdInsrcEventDAO.getRimacPolicy());
 
-        ProductASO product = new ProductASO();
-        product.setId(createdInsuranceDTO.getProduct().getId());
-        product.setName(emissionDAO.getInsuranceProductDesc());
-
-        PlanASO plan = new PlanASO();
-        plan.setId(createdInsuranceDTO.getProduct().getPlan().getId());
-        plan.setName(emissionDAO.getInsuranceModalityName());
-
-        product.setPlan(plan);
-
-        gifoleRequest.setProduct(product);
-
         InstallmentPlansCreatedInsrcEvent installmentPlanEvnt = createdInsuranceDTO.getProduct().getPlan().getInstallmentPlans().get(0);
 
         InstallmentPlanASO installmentPlan = new InstallmentPlanASO();
@@ -258,6 +260,13 @@ public class MapperHelper {
         return gifoleRequest;
     }
 
+    private void settingRimacSimulationId(final GifoleInsuranceRequestASO gifoleRequest, final String insuranceCompanySimulationId) {
+        String productCode = gifoleRequest.getProduct().getId();
+        if( !"830".equals(productCode) && !"833".equals(productCode) && !"834".equals(productCode) ) {
+            gifoleRequest.setExternalSimulationId(insuranceCompanySimulationId);
+        }
+    }
+
     public CreateEmailASO createEmailServiceRequest(CreatedInsuranceDTO requestBody, RequiredFieldsEmissionDAO emissionDao,
                                                     CreatedInsrcEventDAO createdInsrcEventDao, CustomerBO customerInformation) {
 
@@ -291,16 +300,16 @@ public class MapperHelper {
                 String riskDirection = (String) responseQueryGetHomeRiskDirection.get(HomeInsuranceProperty.FIELD_LEGAL_ADDRESS_DESC.getValue());
 
                 if("832".equals(productId)) {
-                    createEmailASO = buildHomeEmailRequest(requestBody, emissionDao, createdInsrcEventDao, simltInsuredHousingDAO, fullName, riskDirection);
+                    createEmailASO = buildHomeEmailRequest(requestBody, createdInsrcEventDao, simltInsuredHousingDAO, fullName, riskDirection);
                 } else {
                     String legalName = this.getLegalName(requestBody);
-                    createEmailASO = buildFlexiPymeEmailRequest(requestBody, emissionDao, createdInsrcEventDao,
+                    createEmailASO = buildFlexiPymeEmailRequest(requestBody, createdInsrcEventDao,
                             simltInsuredHousingDAO, riskDirection, customerInformation, legalName);
                 }
 
                 break;
             default:
-                createEmailASO = buildGeneralEmailRequest(requestBody, emissionDao, createdInsrcEventDao, fullName);
+                createEmailASO = buildGeneralEmailRequest(requestBody, createdInsrcEventDao, fullName);
                 break;
         }
 
@@ -323,9 +332,8 @@ public class MapperHelper {
         return vehicleEmail;
     }
 
-    private CreateEmailASO buildHomeEmailRequest(CreatedInsuranceDTO requestBody, RequiredFieldsEmissionDAO emissionDao,
-                                                 CreatedInsrcEventDAO createdInsrcEventDao, SimltInsuredHousingDAO simltInsuredHousingDAO,
-                                                 String customerName, String riskDirection) {
+    private CreateEmailASO buildHomeEmailRequest(CreatedInsuranceDTO requestBody, CreatedInsrcEventDAO createdInsrcEventDao,
+                                                 SimltInsuredHousingDAO simltInsuredHousingDAO, String customerName, String riskDirection) {
         String homeLayoutCode = "PLT00968";
 
         CreateEmailASO homeEmail = new CreateEmailASO();
@@ -333,7 +341,7 @@ public class MapperHelper {
         homeEmail.setRecipient("0,".concat(requestBody.getHolder().getContactDetails().get(0).getContact().getValue()));
         homeEmail.setSubject(this.applicationConfigurationService.getProperty(MAIL_SUJECT_HOME));
 
-        String[] data = this.getMailBodyDataHome(requestBody, emissionDao, createdInsrcEventDao, simltInsuredHousingDAO, customerName, riskDirection);
+        String[] data = this.getMailBodyDataHome(requestBody, createdInsrcEventDao, simltInsuredHousingDAO, customerName, riskDirection);
 
         homeEmail.setBody(this.getMailBodyHome(data, homeLayoutCode));
         homeEmail.setSender(MAIL_SENDER);
@@ -341,9 +349,9 @@ public class MapperHelper {
         return homeEmail;
     }
 
-    private CreateEmailASO buildFlexiPymeEmailRequest(final CreatedInsuranceDTO requestBody, final RequiredFieldsEmissionDAO emissionDao,
-                                                      final CreatedInsrcEventDAO createdInsrcEventDao, final SimltInsuredHousingDAO simltInsuredHousingDAO,
-                                                      final String riskDirection, final CustomerBO customerInformation, final String legalName) {
+    private CreateEmailASO buildFlexiPymeEmailRequest(final CreatedInsuranceDTO requestBody, final CreatedInsrcEventDAO createdInsrcEventDao,
+                                                      final SimltInsuredHousingDAO simltInsuredHousingDAO, final String riskDirection,
+                                                      final CustomerBO customerInformation, final String legalName) {
 
         String flexiPymeCode = "PLT00991";
 
@@ -375,16 +383,15 @@ public class MapperHelper {
         email.setRecipient("0,".concat(emailToUse));
 
         email.setSubject(this.applicationConfigurationService.getProperty(MAIL_SUJECT_FLEXIPYME));
-        String[] data = this.getMailBodyDataFlexipyme(emissionDao, requestBody, createdInsrcEventDao,
+        String[] data = this.getMailBodyDataFlexipyme(requestBody, createdInsrcEventDao,
                 customerName, simltInsuredHousingDAO, riskDirection, legalName);
         email.setBody(getEmailBodySructure2(data,flexiPymeCode));
         email.setSender(MAIL_SENDER);
         return email;
     }
 
-    private String[] getMailBodyDataFlexipyme(RequiredFieldsEmissionDAO emissionDao, CreatedInsuranceDTO requestBody,
-                                              CreatedInsrcEventDAO createdInsrcEventDao, String customerName, SimltInsuredHousingDAO homeInfo,
-                                              String riskDirection, String legalName) {
+    private String[] getMailBodyDataFlexipyme(CreatedInsuranceDTO requestBody, CreatedInsrcEventDAO createdInsrcEventDao, String customerName,
+                                              SimltInsuredHousingDAO homeInfo, String riskDirection, String legalName) {
         String[] bodyData = new String[13];
 
         if("P".equals(homeInfo.getHousingType())) {
@@ -394,7 +401,7 @@ public class MapperHelper {
             bodyData[0] = customerName;
             bodyData[2] = HolderTypeEnum.TENANT.getName();
         }
-        bodyData[1] = emissionDao.getInsuranceModalityName();
+        bodyData[1] = createdInsrcEventDao.getInsuranceModalityName();
         bodyData[3] = riskDirection;
         bodyData[4] = homeInfo.getPropSeniorityYearsNumber().toString();
         bodyData[5] = homeInfo.getFloorNumber().toString();
@@ -448,7 +455,7 @@ public class MapperHelper {
         bodyData[7] = numberFormat.format(emissionDao.getCommercialVehicleAmount());
         bodyData[8] = this.getContractNumber(createdInsrcEventDao.getContractNumber());
         bodyData[9] = this.setPolicyNumber(createdInsrcEventDao.getRimacPolicy());
-        bodyData[10] = emissionDao.getInsuranceModalityName();
+        bodyData[10] = createdInsrcEventDao.getInsuranceModalityName();
 
         BigDecimal monthlyPay = valueOf(requestBody.getProduct().getPlan().getInstallmentPlans().get(0).getPaymentAmount().getAmount());
 
@@ -473,9 +480,8 @@ public class MapperHelper {
         return body.toString();
     }
 
-    private String[] getMailBodyDataHome(CreatedInsuranceDTO requestBody, RequiredFieldsEmissionDAO emissionDao,
-                                         CreatedInsrcEventDAO createdInsrcEventDao, SimltInsuredHousingDAO simltInsuredHousingDAO,
-                                         String customerName, String riskDirection) {
+    private String[] getMailBodyDataHome(CreatedInsuranceDTO requestBody, CreatedInsrcEventDAO createdInsrcEventDao,
+                                         SimltInsuredHousingDAO simltInsuredHousingDAO, String customerName, String riskDirection) {
         String[] bodyData = new String[18];
 
         String noneValue = "none";
@@ -527,7 +533,7 @@ public class MapperHelper {
         bodyData[13] = this.setPolicyNumber(createdInsrcEventDao.getRimacPolicy());
         bodyData[14] = numberFormat.format(requestBody.getProduct().getPlan().getInstallmentPlans().get(0).getPaymentAmount().getAmount());
         bodyData[15] = createdInsrcEventDao.getPeriodName();
-        bodyData[16] = emissionDao.getInsuranceModalityName();
+        bodyData[16] = createdInsrcEventDao.getInsuranceModalityName();
         bodyData[17] = riskDirection;
 
         return bodyData;
@@ -603,7 +609,7 @@ public class MapperHelper {
         return code.toString();
     }
 
-    private CreateEmailASO buildGeneralEmailRequest(CreatedInsuranceDTO requestBody, RequiredFieldsEmissionDAO emissionDao, CreatedInsrcEventDAO createdInsrcEventDao, String customerName) {
+    private CreateEmailASO buildGeneralEmailRequest(CreatedInsuranceDTO requestBody, CreatedInsrcEventDAO createdInsrcEventDao, String customerName) {
         String layoutCode = "PLT01011";
 
         CreateEmailASO generalEmail = new CreateEmailASO();
@@ -611,7 +617,7 @@ public class MapperHelper {
         generalEmail.setRecipient("0,".concat(requestBody.getHolder().getContactDetails().get(0).getContact().getValue()));
         generalEmail.setSubject("Genial Tu solicitud de Seguro de Proteccion de Tarjetas fue ingresada con exito");
 
-        String[] data = this.getGeneralMailBodyData(requestBody, emissionDao, createdInsrcEventDao, customerName);
+        String[] data = this.getGeneralMailBodyData(requestBody, createdInsrcEventDao, customerName);
 
         generalEmail.setBody(this.getMailBodyHome(data, layoutCode));
         generalEmail.setSender(MAIL_SENDER);
@@ -619,13 +625,13 @@ public class MapperHelper {
         return generalEmail;
     }
 
-    private String[] getGeneralMailBodyData(CreatedInsuranceDTO requestBody, RequiredFieldsEmissionDAO emissionDao, CreatedInsrcEventDAO createdInsrcEventDao, String customerName) {
+    private String[] getGeneralMailBodyData(CreatedInsuranceDTO requestBody, CreatedInsrcEventDAO createdInsrcEventDao, String customerName) {
 
         String[] bodyData = new String[7];
 
         bodyData[0] = customerName;
         bodyData[1] = this.setPolicyNumber(createdInsrcEventDao.getRimacPolicy());
-        bodyData[2] = emissionDao.getInsuranceModalityName();
+        bodyData[2] = createdInsrcEventDao.getInsuranceModalityName();
         bodyData[3] = createdInsrcEventDao.getInsuranceCompanyDesc();
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
