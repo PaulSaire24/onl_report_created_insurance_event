@@ -24,10 +24,10 @@ import com.bbva.rbvd.dto.insrncsale.utils.RBVDProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.math.BigDecimal;
-
-import java.util.HashMap;
 import java.util.Map;
+import java.util.HashMap;
+
+import java.math.BigDecimal;
 
 import static java.util.Objects.isNull;
 
@@ -83,7 +83,7 @@ public class RBVDR221Impl extends RBVDR221Abstract {
 		try {
 			BankEventDTO bank = createdInsrcEvent.getHeader().getOrigin().getBank();
 			GifoleInsuranceRequestASO gifoleRequest = this.mapperHelper.createGifoleServiceRequest(createdInsuranceDTO, createdInsrcEventDAO,
-					emissionDAO, customerInformation, bank);
+					customerInformation, bank);
 			this.httpClient.executeGifoleService(gifoleRequest);
 		} catch (BusinessException ex) {
 			this.httpClient.executeSetAlarmStatus(this.createAlarmErrorRequest("createGifoleInsuranceRequest"));
@@ -132,6 +132,12 @@ public class RBVDR221Impl extends RBVDR221Abstract {
 				setPaymentMethodId((String) responseGetCreatedInsrcEvntRequiredFields.get(RBVDProperties.FIELD_PAYMENT_METHOD_TYPE.getValue()));
 		createdInsrcEventDAO.
 				setInsuranceCompanyDesc((String) responseGetCreatedInsrcEvntRequiredFields.get(RBVDProperties.FIELD_INSURANCE_COMPANY_DESC.getValue()));
+		createdInsrcEventDAO.
+				setInsuranceProductDesc((String) responseGetCreatedInsrcEvntRequiredFields.get(RBVDProperties.FIELD_INSURANCE_PRODUCT_DESC.getValue()));
+		createdInsrcEventDAO.
+				setInsuranceModalityName((String) responseGetCreatedInsrcEvntRequiredFields.get(PISDProperties.FIELD_INSURANCE_MODALITY_NAME.getValue()));
+		createdInsrcEventDAO.
+				setInsrncCompanySimulationId((String) responseGetCreatedInsrcEvntRequiredFields.get(PISDProperties.FIELD_INSRNC_COMPANY_SIMULATION_ID.getValue()));
 		return createdInsrcEventDAO;
 	}
 

@@ -40,11 +40,8 @@ import java.util.Map;
 import static java.math.BigDecimal.valueOf;
 
 import static java.util.Collections.singletonList;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
 
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -82,6 +79,9 @@ public class MapperHelperTest {
         when(createdInsrcEventDAO.getPaymentMethodId()).thenReturn("C");
         when(createdInsrcEventDAO.getPeriodName()).thenReturn("MENSUAL");
         when(createdInsrcEventDAO.getInsuranceCompanyDesc()).thenReturn("RIMAC");
+        when(createdInsrcEventDAO.getInsuranceProductDesc()).thenReturn("VEHICULAR OPTATIVO");
+        when(createdInsrcEventDAO.getInsuranceModalityName()).thenReturn("PLAN BASICO");
+        when(createdInsrcEventDAO.getInsrncCompanySimulationId()).thenReturn("4afc460b-5158-45ff-a08c-3047b1756031");
 
         when(requiredFieldsEmissionDAO.getInsuranceModalityName()).thenReturn("PLAN BASICO");
         when(requiredFieldsEmissionDAO.getPaymentFrequencyName()).thenReturn("Mensual");
@@ -106,9 +106,6 @@ public class MapperHelperTest {
     @Test
     public void createGifoleServiceRequestWithCardAndAccountPaymentMethod() {
 
-        when(requiredFieldsEmissionDAO.getInsuranceProductDesc()).thenReturn("VEHICULAR OPTATIVO");
-        when(requiredFieldsEmissionDAO.getInsuranceModalityName()).thenReturn("PLAN BASICO");
-
         when(applicationConfigurationService.getProperty(anyString())).thenReturn("INSURANCE_CREATION");
 
         CustomerBO customer = new CustomerBO();
@@ -122,8 +119,7 @@ public class MapperHelperTest {
         branch.setBranchId("branchId");
         bank.setBranch(branch);
 
-        GifoleInsuranceRequestASO validation = this.mapperHelper.createGifoleServiceRequest(createdInsuranceDTO, createdInsrcEventDAO,
-                requiredFieldsEmissionDAO, customer, bank);
+        GifoleInsuranceRequestASO validation = this.mapperHelper.createGifoleServiceRequest(createdInsuranceDTO, createdInsrcEventDAO, customer, bank);
 
         assertNotNull(validation);
 
@@ -133,6 +129,7 @@ public class MapperHelperTest {
         assertEquals(createdInsuranceDTO.getQuotationId(), validation.getQuotation().getId());
 
         assertNotNull(validation.getOperationDate());
+        assertNotNull(validation.getExternalSimulationId());
         assertNotNull(validation.getValidityPeriod());
         assertNotNull(validation.getValidityPeriod().getStartDate());
         assertNotNull(validation.getValidityPeriod().getEndDate());
@@ -143,6 +140,8 @@ public class MapperHelperTest {
         assertNotNull(validation.getHolder().getIdentityDocument().getDocumentType());
         assertNotNull(validation.getHolder().getIdentityDocument().getDocumentType().getId());
         assertNotNull(validation.getHolder().getIdentityDocument().getDocumentNumber());
+
+        assertEquals(createdInsrcEventDAO.getInsrncCompanySimulationId(), validation.getExternalSimulationId());
 
         /* CASO PARA TIPO DE PAGO CON CUENTA BANCARIA */
         assertTrue(validation.getHolder().getHasBankAccount());
@@ -168,7 +167,7 @@ public class MapperHelperTest {
         assertNotNull(validation.getProduct());
 
         assertEquals(createdInsuranceDTO.getProduct().getId(), validation.getProduct().getId());
-        assertEquals(requiredFieldsEmissionDAO.getInsuranceProductDesc(), validation.getProduct().getName());
+        assertEquals(createdInsrcEventDAO.getInsuranceProductDesc(), validation.getProduct().getName());
 
         assertNotNull(validation.getProduct().getPlan());
         assertEquals(createdInsuranceDTO.getProduct().getPlan().getId(), validation.getProduct().getPlan().getId());
@@ -204,12 +203,14 @@ public class MapperHelperTest {
 
         assertEquals("INSURANCE_CREATION", validation.getOperationType());
 
-        /* CASO PARA TIPO DE PAGO CON TARJETA */
+        /* CASO PARA TIPO DE PAGO CON TARJETA Y CON UN PRODUCTO DIFERENTE A HOGAR TOTAL*/
         when(createdInsrcEventDAO.getPaymentMethodId()).thenReturn("T");
         createdInsuranceDTO.getHolder().getContactDetails().clear();
+        createdInsuranceDTO.getProduct().setId("830");
 
-        validation = this.mapperHelper.createGifoleServiceRequest(createdInsuranceDTO, createdInsrcEventDAO, requiredFieldsEmissionDAO,
-                    null, bank);
+        validation = this.mapperHelper.createGifoleServiceRequest(createdInsuranceDTO, createdInsrcEventDAO, null, bank);
+
+        assertNull(validation.getExternalSimulationId());
 
         assertTrue(validation.getHolder().getHasCreditCard());
         assertFalse(validation.getHolder().getHasBankAccount());
