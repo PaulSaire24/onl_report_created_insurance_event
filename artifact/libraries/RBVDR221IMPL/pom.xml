@@ -82,12 +82,12 @@
 		<dependency>
 			<groupId>com.bbva.pisd.dto.insurance</groupId>
 			<artifactId>PISDC011</artifactId>
-			<version>0.18.0-SNAPSHOT</version>
+			<version>0.18.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.bbva.pisd</groupId>
 			<artifactId>PISDR012</artifactId>
-			<version>0.28.0-SNAPSHOT</version>
+			<version>0.28.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.bbva.elara</groupId>
