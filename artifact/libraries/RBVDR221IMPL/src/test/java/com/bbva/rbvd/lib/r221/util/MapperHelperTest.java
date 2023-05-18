@@ -472,6 +472,30 @@ public class MapperHelperTest {
     }
 
     @Test
+    public void createEmailServiceRequestLifeWithListBusinessRestException() {
+
+        createdInsuranceDTO.getProduct().setId("840");
+        when(applicationConfigurationService.getProperty(anyString())).thenReturn("Genial Tu solicitud de Seguro de Vida fue ingresada con exito");
+        CreateEmailASO validation = this.mapperHelper.createEmailServiceRequest(createdInsuranceDTO, requiredFieldsEmissionDAO, createdInsrcEventDAO, null);
+
+        assertNotNull(validation);
+        assertNotNull(validation.getApplicationId());
+        assertNotNull(validation.getRecipient());
+        assertNotNull(validation.getSubject());
+        assertNotNull(validation.getSubject());
+        assertNotNull(validation.getBody());
+        assertNotNull(validation.getSender());
+
+        assertEquals("0,ronald.dolores@bbva.com", validation.getRecipient());
+        assertEquals("Genial Tu solicitud de Seguro de Vida fue ingresada con exito", validation.getSubject());
+        assertEquals("procesos@bbva.com.pe", validation.getSender());
+
+        when(createdInsrcEventDAO.getRimacPolicy()).thenReturn(null);
+
+        validation = this.mapperHelper.createEmailServiceRequest(createdInsuranceDTO, requiredFieldsEmissionDAO, createdInsrcEventDAO, null);
+    }
+
+    @Test
     public void createGeneralEmailServiceRequest() {
 
         createdInsuranceDTO.getProduct().setId("834");
