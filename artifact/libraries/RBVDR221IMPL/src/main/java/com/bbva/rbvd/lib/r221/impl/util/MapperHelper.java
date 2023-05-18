@@ -91,6 +91,7 @@ public class MapperHelper {
     private static final String IN_PROCCESS_KEY = "policyWithoutNumber";
     private static final String MAIL_SUJECT_VEHICLE = "mail.subject.vehicle";
     private static final String MAIL_SUJECT_HOME = "mail.subject.home";
+    private static final String MAIL_SUJECT_LIFE = "mail.subject.life";
     private static final String MAIL_SUJECT_FLEXIPYME = "mail.subject.flexipyme";
 
     private final SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
@@ -309,7 +310,8 @@ public class MapperHelper {
 
                 break;
             case "840":
-                createEmailASO = buildGeneralEmailRequest(requestBody, createdInsrcEventDao, fullName, "Genial Tu solicitud de Seguro de Vida fue ingresada con exito", "PLT01012");
+                String lifeSubjectEmission = this.applicationConfigurationService.getProperty(MAIL_SUJECT_LIFE);
+                createEmailASO = buildGeneralEmailRequest(requestBody, createdInsrcEventDao, fullName, lifeSubjectEmission, "PLT01012");
                 break;
             default:
                 createEmailASO = buildGeneralEmailRequest(requestBody, createdInsrcEventDao, fullName, "Genial Tu solicitud de Seguro de Proteccion de Tarjetas fue ingresada con exito", "PLT01011");
