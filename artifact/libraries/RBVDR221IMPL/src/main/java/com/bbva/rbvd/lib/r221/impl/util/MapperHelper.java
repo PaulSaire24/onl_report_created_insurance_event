@@ -311,7 +311,7 @@ public class MapperHelper {
                 break;
             case "840":
                 String lifeSubjectEmission = this.applicationConfigurationService.getProperty(MAIL_SUJECT_LIFE);
-                createEmailASO = buildGeneralEmailRequest(requestBody, createdInsrcEventDao, fullName, lifeSubjectEmission, "PLT01012");
+                createEmailASO = buildGeneralEmailRequest(requestBody, createdInsrcEventDao, fullName, lifeSubjectEmission, "PLT01018");
                 break;
             default:
                 createEmailASO = buildGeneralEmailRequest(requestBody, createdInsrcEventDao, fullName, "Genial Tu solicitud de Seguro de Proteccion de Tarjetas fue ingresada con exito", "PLT01011");
