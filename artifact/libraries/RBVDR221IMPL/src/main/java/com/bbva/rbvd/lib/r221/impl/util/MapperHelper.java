@@ -36,6 +36,8 @@ import com.bbva.rbvd.dto.homeinsrc.utils.HomeInsuranceProperty;
 import com.bbva.rbvd.dto.insrncsale.aso.cypher.CypherASO;
 import com.bbva.rbvd.dto.insrncsale.aso.listbusinesses.ListBusinessesASO;
 
+import com.bbva.rbvd.dto.insrncsale.commons.ContactDTO;
+import com.bbva.rbvd.dto.insrncsale.commons.ContactDetailDTO;
 import com.bbva.rbvd.dto.insrncsale.dao.CreatedInsrcEventDAO;
 import com.bbva.rbvd.dto.insrncsale.dao.RequiredFieldsEmissionDAO;
 
@@ -373,12 +375,21 @@ public class MapperHelper {
 
         String customerName = "";
 
+        if(nonNull(requestBody)){
+            mainEmail=requestBody.getHolder().getContactDetails().stream()
+                    .filter(contactDetail -> "EMAIL".equalsIgnoreCase(contactDetail.getContact().getContactType()))
+                    .findFirst()
+                    .map(ContactDetailDTO::getContact)
+                    .map(ContactDTO::getValue)
+                    .orElse(null);
+        }
+
         if(nonNull(customerInformation)) {
-            mainEmail = customerInformation.getContactDetails().stream()
+            mainEmail=Objects.isNull(mainEmail) ? customerInformation.getContactDetails().stream()
                     .filter(contactDetail -> "EMAIL".equalsIgnoreCase(contactDetail.getContactType().getId()))
                     .findFirst()
                     .map(ContactDetailsBO::getContact)
-                    .orElse(null);
+                    .orElse(null) : mainEmail;
 
             customerName = nullToEmpty(customerInformation.getFirstName()) + " " +
                     nullToEmpty(customerInformation.getLastName()) + " " +
