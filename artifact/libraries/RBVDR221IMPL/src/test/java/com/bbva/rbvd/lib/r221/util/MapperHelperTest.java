@@ -367,6 +367,7 @@ public class MapperHelperTest {
         contactDetail.setContactType(contactType);
 
         customer.setContactDetails(singletonList(contactDetail));
+        createdInsuranceDTO.getHolder().getContactDetails().get(0).getContact().setContactType("");
 
         CreateEmailASO validation = this.mapperHelper.createEmailServiceRequest(createdInsuranceDTO, requiredFieldsEmissionDAO, createdInsrcEventDAO, customer);
 
@@ -389,6 +390,7 @@ public class MapperHelperTest {
 
         createdInsuranceDTO.getHolder().getIdentityDocument().getDocumentType().setId("RUC");
         createdInsuranceDTO.getHolder().getIdentityDocument().setDocumentNumber("2088893512");
+        createdInsuranceDTO.getHolder().getContactDetails().get(0).getContact().setContactType("EMAIL");
 
         when(this.httpClient.executeCypherService(anyObject())).thenReturn("encryptedValue");
 

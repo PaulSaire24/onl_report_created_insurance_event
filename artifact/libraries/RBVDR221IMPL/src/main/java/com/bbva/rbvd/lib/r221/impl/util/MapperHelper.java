@@ -371,7 +371,7 @@ public class MapperHelper {
         CreateEmailASO email = new CreateEmailASO();
         email.setApplicationId(flexiPymeCode.concat(format.format(new Date())));
 
-        String mainEmail = "";
+        String mainEmail = null;
 
         String customerName = "";
 
@@ -390,7 +390,7 @@ public class MapperHelper {
                     .findFirst()
                     .map(ContactDetailsBO::getContact)
                     .orElse(null) : mainEmail;
-
+            System.out.println(mainEmail);
             customerName = nullToEmpty(customerInformation.getFirstName()) + " " +
                     nullToEmpty(customerInformation.getLastName()) + " " +
                     nullToEmpty(customerInformation.getSecondLastName());
