@@ -497,7 +497,7 @@ public class MapperHelperTest {
         validation = this.mapperHelper.createEmailServiceRequest(createdInsuranceDTO, requiredFieldsEmissionDAO, createdInsrcEventDAO, null);
     }
     @Test
-    public void createEmailServiceRequestDefaulException() {
+    public void createEmailServiceRequestDefault() {
 
         createdInsuranceDTO.getProduct().setId("000");
         when(applicationConfigurationService.getDefaultProperty(anyString(),anyString())).thenReturn("Genial Tu solicitud de Seguro fue ingresada con exito");
