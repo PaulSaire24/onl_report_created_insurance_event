@@ -97,8 +97,8 @@ public class MapperHelper {
 
     private static final String MAIL_SUJECT_GENERIC = "mail.subject.generic.product";
     private static final String MAIL_SUJECT_FLEXIPYME = "mail.subject.flexipyme";
-
     private final SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
+    private static final String EMAIL_VALUE = "EMAIL";
 
     private ApplicationConfigurationService applicationConfigurationService;
 
@@ -173,14 +173,12 @@ public class MapperHelper {
 
         holder.setIdentityDocument(identityDocument);
 
-        String emailContactTypeId = "EMAIL";
-
         String phoneNumber = createdInsuranceDTO.getHolder().getContactDetails().stream()
                 .filter(contactDetail -> contactDetail.getContact().getContactType().equals("MOBILE")).findAny()
                 .map(contactDetail -> contactDetail.getContact().getValue()).orElse("Sin nro");
 
         String emailAddress = createdInsuranceDTO.getHolder().getContactDetails().stream()
-                .filter(contactDetail -> contactDetail.getContact().getContactType().equals(emailContactTypeId)).findAny()
+                .filter(contactDetail -> contactDetail.getContact().getContactType().equals(EMAIL_VALUE)).findAny()
                 .map(contactDetail -> contactDetail.getContact().getValue()).orElse("Sin email");
 
         ContactDetailASO phoneContact = new ContactDetailASO();
@@ -191,7 +189,7 @@ public class MapperHelper {
 
         ContactDetailASO emailContact = new ContactDetailASO();
         ContactASO emContact = new ContactASO();
-        emContact.setContactType(emailContactTypeId);
+        emContact.setContactType(EMAIL_VALUE);
         emContact.setAddress(emailAddress);
         emailContact.setContact(emContact);
 
@@ -371,22 +369,20 @@ public class MapperHelper {
         CreateEmailASO email = new CreateEmailASO();
         email.setApplicationId(flexiPymeCode.concat(format.format(new Date())));
 
-        String mainEmail = "";
+        String mainEmail;
 
         String customerName = "";
 
-        if(nonNull(requestBody)){
-            mainEmail=requestBody.getHolder().getContactDetails().stream()
-                    .filter(contactDetail -> "EMAIL".equalsIgnoreCase(contactDetail.getContact().getContactType()))
-                    .findFirst()
-                    .map(ContactDetailDTO::getContact)
-                    .map(ContactDTO::getValue)
-                    .orElse(null);
-        }
+        mainEmail=requestBody.getHolder().getContactDetails().stream()
+                .filter(contactDetail -> EMAIL_VALUE.equalsIgnoreCase(contactDetail.getContact().getContactType()))
+                .findFirst()
+                .map(ContactDetailDTO::getContact)
+                .map(ContactDTO::getValue)
+                .orElse(null);
 
         if(nonNull(customerInformation)) {
             mainEmail=Objects.isNull(mainEmail) ? customerInformation.getContactDetails().stream()
-                    .filter(contactDetail -> "EMAIL".equalsIgnoreCase(contactDetail.getContactType().getId()))
+                    .filter(contactDetail -> EMAIL_VALUE.equalsIgnoreCase(contactDetail.getContactType().getId()))
                     .findFirst()
                     .map(ContactDetailsBO::getContact)
                     .orElse(null) : mainEmail;
