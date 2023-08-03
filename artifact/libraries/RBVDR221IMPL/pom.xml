@@ -4,12 +4,12 @@
 	<parent>
 		<groupId>com.bbva.rbvd</groupId>
 		<artifactId>LIBRARIES-onl_report_created_insurance_event</artifactId>
-		<version>0.3.2</version>
+		<version>0.4.0-SNAPSHOT</version>
 	</parent>
 	<groupId>com.bbva.rbvd</groupId>
 	<artifactId>RBVDR221IMPL</artifactId>
 	<name>RBVDR221IMPL</name>
-	<version>0.3.2</version>
+	<version>0.4.0-SNAPSHOT</version>
 	<packaging>bundle</packaging>
 	<description>Lib to execute the created insurance event's business logic</description>
 	<properties>
@@ -19,7 +19,7 @@
 		<dependency>
 			<groupId>com.bbva.rbvd</groupId>
 			<artifactId>RBVDR221</artifactId>
-			<version>0.3.2</version>
+			<version>0.4.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.bbva.elara</groupId>
