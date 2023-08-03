@@ -94,6 +94,7 @@ public class MapperHelper {
     private static final String MAIL_SUJECT_VEHICLE = "mail.subject.vehicle";
     private static final String MAIL_SUJECT_HOME = "mail.subject.home";
     private static final String MAIL_SUJECT_LIFE = "mail.subject.life";
+    private static final String LAYOUT_CODE = "PLT01011";
 
     private static final String MAIL_SUJECT_GENERIC = "mail.subject.generic.product";
     private static final String MAIL_SUJECT_FLEXIPYME = "mail.subject.flexipyme";
@@ -317,13 +318,13 @@ public class MapperHelper {
                 break;
             case "834":
                 createEmailASO = buildGeneralEmailRequest(requestBody, createdInsrcEventDao, fullName,
-                        "Genial Tu solicitud de Seguro de Proteccion de Tarjetas fue ingresada con exito", "PLT01011","","Proteccion de Tarjetas");
+                        "Genial Tu solicitud de Seguro de Proteccion de Tarjetas fue ingresada con exito", LAYOUT_CODE,"","Proteccion de Tarjetas");
                 break;
             case "836":
-                createEmailASO = buildGeneralEmailRequest(requestBody, createdInsrcEventDao, fullName, subjectEmission, "PLT01011","none","Desempleo");
+                createEmailASO = buildGeneralEmailRequest(requestBody, createdInsrcEventDao, fullName, subjectEmission, LAYOUT_CODE,"none","Desempleo");
                 break;
             default:
-                createEmailASO = buildGeneralEmailRequest(requestBody, createdInsrcEventDao, fullName, subjectEmission, "PLT01011");
+                createEmailASO = buildGeneralEmailRequest(requestBody, createdInsrcEventDao, fullName, subjectEmission, LAYOUT_CODE);
                 break;
         }
 
