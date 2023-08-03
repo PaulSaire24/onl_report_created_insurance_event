@@ -94,6 +94,7 @@ public class MapperHelper {
     private static final String MAIL_SUJECT_VEHICLE = "mail.subject.vehicle";
     private static final String MAIL_SUJECT_HOME = "mail.subject.home";
     private static final String MAIL_SUJECT_LIFE = "mail.subject.life";
+    private static final String LAYOUT_CODE = "PLT01011";
 
     private static final String MAIL_SUJECT_GENERIC = "mail.subject.generic.product";
     private static final String MAIL_SUJECT_FLEXIPYME = "mail.subject.flexipyme";
@@ -289,7 +290,7 @@ public class MapperHelper {
             fullName = name + " " + lastName;
             fullName = fullName.replace("#", "Ñ");
         }
-
+        String subjectEmission = this.applicationConfigurationService.getDefaultProperty(MAIL_SUJECT_GENERIC.replace("product",productId),"Genial Tu solicitud de Seguro fue ingresada con exito");
         switch (productId) {
             case "830":
                 createEmailASO = buildVehicleEmailRequest(requestBody, emissionDao, createdInsrcEventDao);
@@ -316,11 +317,14 @@ public class MapperHelper {
                 createEmailASO = buildGeneralEmailRequest(requestBody, createdInsrcEventDao, fullName, lifeSubjectEmission, "PLT01018");
                 break;
             case "834":
-                createEmailASO = buildGeneralEmailRequest(requestBody, createdInsrcEventDao, fullName, "Genial Tu solicitud de Seguro de Proteccion de Tarjetas fue ingresada con exito", "PLT01011");
+                createEmailASO = buildGeneralEmailRequest(requestBody, createdInsrcEventDao, fullName,
+                        "Genial Tu solicitud de Seguro de Proteccion de Tarjetas fue ingresada con exito", LAYOUT_CODE,"","Proteccion de Tarjetas");
+                break;
+            case "836":
+                createEmailASO = buildGeneralEmailRequest(requestBody, createdInsrcEventDao, fullName, subjectEmission, LAYOUT_CODE,"none","Desempleo");
                 break;
             default:
-                String subjectEmission = this.applicationConfigurationService.getDefaultProperty(MAIL_SUJECT_GENERIC.replace("product",productId),"Genial Tu solicitud de Seguro fue ingresada con exito");
-                createEmailASO = buildGeneralEmailRequest(requestBody, createdInsrcEventDao, fullName, subjectEmission, "PLT01011");
+                createEmailASO = buildGeneralEmailRequest(requestBody, createdInsrcEventDao, fullName, subjectEmission, LAYOUT_CODE);
                 break;
         }
 
@@ -627,13 +631,26 @@ public class MapperHelper {
         return code.toString();
     }
 
+    private CreateEmailASO buildGeneralEmailRequest(CreatedInsuranceDTO requestBody, CreatedInsrcEventDAO createdInsrcEventDao, String customerName, String subject, String layoutCode,String visibility, String name) {
+        CreateEmailASO generalEmail = new CreateEmailASO();
+        generalEmail.setApplicationId(layoutCode.concat(format.format(new Date())));
+        generalEmail.setRecipient("0,".concat(requestBody.getHolder().getContactDetails().get(0).getContact().getValue()));
+        generalEmail.setSubject(subject);
+
+        String[] data = this.getGeneralMailBodyData(requestBody, createdInsrcEventDao, customerName,visibility, name);
+
+        generalEmail.setBody(this.getMailBodyHome(data, layoutCode));
+        generalEmail.setSender(MAIL_SENDER);
+
+        return generalEmail;
+    }
     private CreateEmailASO buildGeneralEmailRequest(CreatedInsuranceDTO requestBody, CreatedInsrcEventDAO createdInsrcEventDao, String customerName, String subject, String layoutCode) {
         CreateEmailASO generalEmail = new CreateEmailASO();
         generalEmail.setApplicationId(layoutCode.concat(format.format(new Date())));
         generalEmail.setRecipient("0,".concat(requestBody.getHolder().getContactDetails().get(0).getContact().getValue()));
         generalEmail.setSubject(subject);
 
-        String[] data = this.getGeneralMailBodyData(requestBody, createdInsrcEventDao, customerName);
+        String[] data = this.getGeneralMailBodyData(requestBody, createdInsrcEventDao, customerName,"", "");
 
         generalEmail.setBody(this.getMailBodyHome(data, layoutCode));
         generalEmail.setSender(MAIL_SENDER);
@@ -641,9 +658,9 @@ public class MapperHelper {
         return generalEmail;
     }
 
-    private String[] getGeneralMailBodyData(CreatedInsuranceDTO requestBody, CreatedInsrcEventDAO createdInsrcEventDao, String customerName) {
+    private String[] getGeneralMailBodyData(CreatedInsuranceDTO requestBody, CreatedInsrcEventDAO createdInsrcEventDao, String customerName,String visibility , String name) {
 
-        String[] bodyData = new String[7];
+        String[] bodyData = new String[9];
 
         bodyData[0] = customerName;
         bodyData[1] = this.setPolicyNumber(createdInsrcEventDao.getRimacPolicy());
@@ -661,7 +678,9 @@ public class MapperHelper {
         int beginIndex = requestBody.getPaymentMethod().getRelatedContracts().get(0).getNumber().length() - 4;
 
         bodyData[6] = MASK_VALUE.concat(requestBody.getPaymentMethod().getRelatedContracts().get(0).getNumber().substring(beginIndex));
-        
+        bodyData[7] = name;
+        bodyData[8] = visibility;
+
         return bodyData;
     }
 
