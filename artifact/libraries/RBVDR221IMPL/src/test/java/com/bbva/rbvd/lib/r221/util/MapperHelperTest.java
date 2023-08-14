@@ -559,7 +559,7 @@ public class MapperHelperTest {
         assertNotNull(validation.getSender());
 
         assertEquals("0,ronald.dolores@bbva.com", validation.getRecipient());
-        assertEquals("Genial Tu solicitud de Seguro de Proteccion de Tarjetas fue ingresada con exito", validation.getSubject());
+        assertEquals("Genial Tu solicitud de Seguro de Proteccion de Tarjetas fue ingresada con éxito", validation.getSubject());
         assertEquals("procesos@bbva.com.pe", validation.getSender());
 
         when(createdInsrcEventDAO.getRimacPolicy()).thenReturn(null);
