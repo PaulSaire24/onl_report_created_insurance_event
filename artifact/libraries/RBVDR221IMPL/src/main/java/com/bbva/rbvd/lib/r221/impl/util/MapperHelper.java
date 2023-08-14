@@ -97,6 +97,7 @@ public class MapperHelper {
     private static final String LAYOUT_CODE = "PLT01011";
 
     private static final String MAIL_SUJECT_GENERIC = "mail.subject.generic.product";
+    private static final String PRODUCT_NAME = "mail.subject.generic.product.name";
     private static final String MAIL_SUJECT_FLEXIPYME = "mail.subject.flexipyme";
     private final SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
     private static final String EMAIL_VALUE = "EMAIL";
@@ -290,7 +291,8 @@ public class MapperHelper {
             fullName = name + " " + lastName;
             fullName = fullName.replace("#", "Ñ");
         }
-        String subjectEmission = this.applicationConfigurationService.getDefaultProperty(MAIL_SUJECT_GENERIC.replace("product",productId),"Genial Tu solicitud de Seguro fue ingresada con exito");
+        String subjectEmission = this.applicationConfigurationService.getDefaultProperty(MAIL_SUJECT_GENERIC.replace("product",productId),"¡Genial Tu solicitud de Seguro fue ingresada con éxito!");
+        String productName = this.applicationConfigurationService.getDefaultProperty(PRODUCT_NAME.replace("product",productId),"");
         switch (productId) {
             case "830":
                 createEmailASO = buildVehicleEmailRequest(requestBody, emissionDao, createdInsrcEventDao);
@@ -318,13 +320,10 @@ public class MapperHelper {
                 break;
             case "834":
                 createEmailASO = buildGeneralEmailRequest(requestBody, createdInsrcEventDao, fullName,
-                        "Genial Tu solicitud de Seguro de Proteccion de Tarjetas fue ingresada con exito", LAYOUT_CODE,"","Proteccion de Tarjetas");
-                break;
-            case "836":
-                createEmailASO = buildGeneralEmailRequest(requestBody, createdInsrcEventDao, fullName, subjectEmission, LAYOUT_CODE,"none","Desempleo");
+                        "Genial Tu solicitud de Seguro de Proteccion de Tarjetas fue ingresada con éxito", LAYOUT_CODE,"","Proteccion de Tarjetas");
                 break;
             default:
-                createEmailASO = buildGeneralEmailRequest(requestBody, createdInsrcEventDao, fullName, subjectEmission, LAYOUT_CODE);
+                createEmailASO = buildGeneralEmailRequest(requestBody, createdInsrcEventDao, fullName, subjectEmission, LAYOUT_CODE,"none",productName);
                 break;
         }
 
