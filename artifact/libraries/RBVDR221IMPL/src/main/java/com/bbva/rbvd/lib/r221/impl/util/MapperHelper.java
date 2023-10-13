@@ -270,7 +270,7 @@ public class MapperHelper {
 
         String codProduts = this.applicationConfigurationService.getDefaultProperty("gifole.registro.simulacion.code","");
 
-        if(!Arrays.asList(codProduts.split(",")).contains(gifoleRequest.getProduct().getId())) {
+        if(Arrays.asList(codProduts.split(",")).contains(gifoleRequest.getProduct().getId())) {
             gifoleRequest.setExternalSimulationId(insuranceCompanySimulationId);
         }
     }
