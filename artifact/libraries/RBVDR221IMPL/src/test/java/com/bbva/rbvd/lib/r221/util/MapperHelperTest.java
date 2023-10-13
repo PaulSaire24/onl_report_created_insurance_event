@@ -82,6 +82,7 @@ public class MapperHelperTest {
         when(createdInsrcEventDAO.getInsuranceProductDesc()).thenReturn("VEHICULAR OPTATIVO");
         when(createdInsrcEventDAO.getInsuranceModalityName()).thenReturn("PLAN BASICO");
         when(createdInsrcEventDAO.getInsrncCompanySimulationId()).thenReturn("4afc460b-5158-45ff-a08c-3047b1756031");
+        when(applicationConfigurationService.getDefaultProperty("gifole.registro.simulacion.code","")).thenReturn("830,833,834");
 
         when(requiredFieldsEmissionDAO.getInsuranceModalityName()).thenReturn("PLAN BASICO");
         when(requiredFieldsEmissionDAO.getPaymentFrequencyName()).thenReturn("Mensual");

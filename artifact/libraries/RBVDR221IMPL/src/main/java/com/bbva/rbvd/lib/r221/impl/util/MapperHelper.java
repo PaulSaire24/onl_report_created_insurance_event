@@ -71,6 +71,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Calendar;
 import java.util.stream.Stream;
+import java.util.Arrays;
 
 import static java.math.BigDecimal.valueOf;
 
@@ -266,8 +267,10 @@ public class MapperHelper {
     }
 
     private void settingRimacSimulationId(final GifoleInsuranceRequestASO gifoleRequest, final String insuranceCompanySimulationId) {
-        String productCode = gifoleRequest.getProduct().getId();
-        if( !"830".equals(productCode) && !"833".equals(productCode) && !"834".equals(productCode) ) {
+
+        String codProduts = this.applicationConfigurationService.getDefaultProperty("gifole.registro.simulacion.code","");
+
+        if(!Arrays.asList(codProduts.split(",")).contains(gifoleRequest.getProduct().getId())) {
             gifoleRequest.setExternalSimulationId(insuranceCompanySimulationId);
         }
     }
