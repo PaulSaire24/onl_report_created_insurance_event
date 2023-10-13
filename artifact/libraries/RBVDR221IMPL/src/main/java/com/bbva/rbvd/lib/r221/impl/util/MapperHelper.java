@@ -269,8 +269,8 @@ public class MapperHelper {
     private void settingRimacSimulationId(final GifoleInsuranceRequestASO gifoleRequest, final String insuranceCompanySimulationId) {
 
         String codProduts = this.applicationConfigurationService.getDefaultProperty("gifole.registro.simulacion.code","");
-
-        if(!Arrays.asList(codProduts.split(",")).contains(gifoleRequest.getProduct().getId())) {
+        System.out.println("holaasss"+gifoleRequest.getProduct().getId());
+        if(Arrays.asList(codProduts.split(",")).contains(gifoleRequest.getProduct().getId())) {
             gifoleRequest.setExternalSimulationId(insuranceCompanySimulationId);
         }
     }
