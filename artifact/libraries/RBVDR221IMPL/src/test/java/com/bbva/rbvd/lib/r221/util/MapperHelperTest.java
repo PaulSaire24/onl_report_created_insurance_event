@@ -106,7 +106,7 @@ public class MapperHelperTest {
 
     @Test
     public void createGifoleServiceRequestWithCardAndAccountPaymentMethod() {
-
+        createdInsuranceDTO.getProduct().setId("830");
         when(applicationConfigurationService.getProperty(anyString())).thenReturn("INSURANCE_CREATION");
 
         CustomerBO customer = new CustomerBO();
@@ -207,7 +207,7 @@ public class MapperHelperTest {
         /* CASO PARA TIPO DE PAGO CON TARJETA Y CON UN PRODUCTO DIFERENTE A HOGAR TOTAL*/
         when(createdInsrcEventDAO.getPaymentMethodId()).thenReturn("T");
         createdInsuranceDTO.getHolder().getContactDetails().clear();
-        createdInsuranceDTO.getProduct().setId("830");
+        createdInsuranceDTO.getProduct().setId("832");
 
         validation = this.mapperHelper.createGifoleServiceRequest(createdInsuranceDTO, createdInsrcEventDAO, null, bank);
 
