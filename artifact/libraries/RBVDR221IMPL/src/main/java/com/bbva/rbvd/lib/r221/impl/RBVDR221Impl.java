@@ -15,6 +15,7 @@ import com.bbva.rbvd.dto.insrncsale.dao.RequiredFieldsEmissionDAO;
 
 import com.bbva.rbvd.dto.insrncsale.events.CreatedInsrcEventDTO;
 import com.bbva.rbvd.dto.insrncsale.events.CreatedInsuranceDTO;
+import com.bbva.pdwy.dto.auth.salesforce.SalesforceResponseDTO;
 
 import com.bbva.rbvd.dto.insrncsale.events.header.BankEventDTO;
 import com.bbva.rbvd.dto.insrncsale.sigma.SigmaSetAlarmStatusDTO;
@@ -36,6 +37,7 @@ public class RBVDR221Impl extends RBVDR221Abstract {
 	private static final Logger LOGGER = LoggerFactory.getLogger(RBVDR221Impl.class);
 
 	private static final String STATUS_ALARM = "CRITICAL";
+	private static final String SERVICE_CONNECTION_PROPERTY = "dwpUpdateSalesForce";
 
 	@Override
 	public Boolean executeCreatedInsrcEvent(CreatedInsrcEventDTO createdInsrcEvent) {
@@ -90,6 +92,11 @@ public class RBVDR221Impl extends RBVDR221Abstract {
 			this.addAdviceWithDescription(ex.getAdviceCode(), ex.getMessage());
 			return false;
 		}
+
+
+		//SalesforceResponseDTO authentication =  this.pdwyR008.executeGetAuthenticationData(SERVICE_CONNECTION_PROPERTY);
+
+
 
 		LOGGER.info("***** RBVDR221Impl - executeCreatedInsrcEvntBusinessLogic END *****");
 		return true;

@@ -7,4 +7,7 @@
 	<bean id="pisdR021" class="org.mockito.Mockito" factory-method="mock">
 		<constructor-arg value="com.bbva.pisd.lib.r021.PISDR021"/>
 	</bean>
+	<bean id="pdwyR008" class="org.mockito.Mockito" factory-method="mock">
+		<constructor-arg value="com.bbva.pdwy.lib.r008.PDWYR008"/>
+	</bean>
 </beans>
