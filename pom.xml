@@ -21,6 +21,7 @@
 		<jacoco.type.coverage>COMPLEXITY</jacoco.type.coverage>
 	</properties>
 	<modules>
+		<module>artifact/dtos</module>
 		<module>artifact/libraries</module>
 		<module>artifact/transactions</module>
 	</modules>
