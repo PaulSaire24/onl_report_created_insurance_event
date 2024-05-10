@@ -1,30 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>com.bbva.rbvd</groupId>
-		<artifactId>LIBRARIES-onl_report_created_insurance_event</artifactId>
+		<artifactId>DTOS-onl_report_created_insurance_event</artifactId>
 		<version>0.3.6</version>
 	</parent>
-	<groupId>com.bbva.rbvd</groupId>
-	<artifactId>RBVDR221</artifactId>
-	<name>RBVDR221</name>
+	<groupId>com.bbva.rbvd.dto.rbvdcomunicationdwp</groupId>
+	<artifactId>RBVDC411</artifactId>
 	<version>0.3.6</version>
 	<packaging>bundle</packaging>
-	<description>Lib to execute the created insurance event's business logic</description>
+	<description>dto for comunication to dwp</description>
 	<properties>
 		<osgi.version.manifest>0.0</osgi.version.manifest>
 	</properties>
 	<dependencies>
 		<dependency>
-			<groupId>com.bbva.rbvd.dto.insrncsale</groupId>
-			<artifactId>RBVDC201</artifactId>
-			<version>0.23.1</version>
-		</dependency>
-		<dependency>
-			<groupId>com.bbva.rbvd.dto.rbvdcomunicationdwp</groupId>
-			<artifactId>RBVDC411</artifactId>
-			<version>0.3.6</version>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
 		</dependency>
 	</dependencies>
 	<build>
@@ -37,7 +31,7 @@
 				<configuration>
 					<instructions>
 						<Bundle-SymbolicName>${project.artifactId}-${project.version}</Bundle-SymbolicName>
-						<Bundle-Category>library</Bundle-Category>
+						<Bundle-Category>dto</Bundle-Category>
 						<Import-Package>
 							*;version="${osgi.version.manifest}"
 						</Import-Package>
@@ -51,7 +45,7 @@
 						<phase>install</phase>
 						<configuration>
 							<tasks>
-								<copy todir="${outputDirectoryLibraries}" file="./target/${project.artifactId}.jar"/>
+								<copy todir="${outputDirectoryDTOs}" file="./target/${project.artifactId}.jar" />
 							</tasks>
 						</configuration>
 						<goals>

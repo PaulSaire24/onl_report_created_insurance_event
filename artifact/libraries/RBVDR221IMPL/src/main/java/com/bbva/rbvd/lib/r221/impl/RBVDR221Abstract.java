@@ -3,7 +3,9 @@ package com.bbva.rbvd.lib.r221.impl;
 import com.bbva.elara.library.AbstractLibrary;
 import com.bbva.elara.utility.api.connector.APIConnector;
 import com.bbva.elara.utility.api.connector.APIConnectorBuilder;
+import com.bbva.pdwy.lib.r008.PDWYR008;
 import com.bbva.pisd.lib.r012.PISDR012;
+import com.bbva.pisd.lib.r021.PISDR021;
 import com.bbva.rbvd.lib.r221.RBVDR221;
 import com.bbva.rbvd.lib.r221.impl.util.HttpClient;
 import com.bbva.rbvd.lib.r221.impl.util.MapperHelper;
@@ -17,11 +19,18 @@ public abstract class RBVDR221Abstract extends AbstractLibrary implements RBVDR2
 
 	protected APIConnectorBuilder apiConnectorBuilder;
 
+	protected APIConnector externalApiConnector;
+
 	protected PISDR012 pisdR012;
+
+	protected PISDR021 pisdR021;
+
+	protected PDWYR008 pdwyR008;
 
 	protected MapperHelper mapperHelper;
 
 	protected HttpClient httpClient;
+
 
 	/**
 	* @param internalApiConnector the this.internalApiConnector to set
@@ -38,14 +47,38 @@ public abstract class RBVDR221Abstract extends AbstractLibrary implements RBVDR2
 	}
 
 	/**
+	* @param externalApiConnector the this.externalApiConnector to set
+	*/
+	public void setExternalApiConnector(APIConnector externalApiConnector) {
+		this.externalApiConnector = externalApiConnector;
+	}
+
+	/**
 	* @param pisdR012 the this.pisdR012 to set
 	*/
 	public void setPisdR012(PISDR012 pisdR012) {
 		this.pisdR012 = pisdR012;
 	}
 
-	public void setMapperHelper(MapperHelper mapperHelper) {this.mapperHelper = mapperHelper;}
+	/**
+	* @param pisdR021 the this.pisdR021 to set
+	*/
+	public void setPisdR021(PISDR021 pisdR021) {
+		this.pisdR021 = pisdR021;
+	}
 
-	public void setHttpClient(HttpClient httpClient) {this.httpClient = httpClient;}
+	/**
+	* @param pdwyR008 the this.pdwyR008 to set
+	*/
+	public void setPdwyR008(PDWYR008 pdwyR008) {
+		this.pdwyR008 = pdwyR008;
+	}
 
+	public void setMapperHelper(MapperHelper mapperHelper) {
+		this.mapperHelper = mapperHelper;
+	}
+
+	public void setHttpClient(HttpClient httpClient) {
+		this.httpClient = httpClient;
+	}
 }

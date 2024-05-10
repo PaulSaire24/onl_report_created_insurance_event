@@ -2,6 +2,7 @@ package com.bbva.rbvd.lib.r221.impl;
 
 import com.bbva.apx.exception.business.BusinessException;
 
+import com.bbva.pdwy.dto.auth.salesforce.SalesforceResponseDTO;
 import com.bbva.pisd.dto.insurance.aso.email.CreateEmailASO;
 import com.bbva.pisd.dto.insurance.aso.gifole.GifoleInsuranceRequestASO;
 
@@ -21,23 +22,33 @@ import com.bbva.rbvd.dto.insrncsale.sigma.SigmaSetAlarmStatusDTO;
 
 import com.bbva.rbvd.dto.insrncsale.utils.RBVDProperties;
 
+import com.bbva.rbvd.dto.rbvdcomunicationdwp.service.saleforce.SalesForceBO;
+import com.bbva.rbvd.lib.r221.transform.bean.UpdateDwpRequest;
+import com.bbva.rbvd.lib.r221.util.JsonHelper;
+import com.google.gson.Gson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.*;
+import org.springframework.web.client.RestClientException;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.HashMap;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 
 import static java.util.Objects.isNull;
 
 public class RBVDR221Impl extends RBVDR221Abstract {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(RBVDR221Impl.class);
-
 	private static final String STATUS_ALARM = "CRITICAL";
+	private static final String AUTHORIZATION_HEADER = "Authorization";
+	private static final String SERVICE_CONNECTION_PROPERTY = "dwpUpdateSalesForce";
 
-	@Override
+
+    @Override
 	public Boolean executeCreatedInsrcEvent(CreatedInsrcEventDTO createdInsrcEvent) {
 		LOGGER.info("***** RBVDR221Impl - executeCreatedInsrcEvntBusinessLogic START *****");
 		LOGGER.info("***** RBVDR221Impl - executeCreatedInsrcEvntBusinessLogic RequestBody {} *****", createdInsrcEvent);
@@ -91,9 +102,29 @@ public class RBVDR221Impl extends RBVDR221Abstract {
 			return false;
 		}
 
-		LOGGER.info("***** RBVDR221Impl - executeCreatedInsrcEvntBusinessLogic END *****");
-		return true;
-	}
+		SalesforceResponseDTO authentication =  this.pdwyR008.executeGetAuthenticationData(SERVICE_CONNECTION_PROPERTY);
+		LOGGER.info("***** RBVDR221Impl - authentication data dto ***** {}", authentication);
+		SalesForceBO requestBO = UpdateDwpRequest.mapRequestToSalesForceDwpBean(createdInsuranceDTO);
+		String json = this.getRequestBodyAsJsonFormat(requestBO);
+		HttpEntity<String> entity = new HttpEntity<>(json, createHttpHeaders(authentication));
+
+		try {
+			ResponseEntity<SalesForceBO> responseEntity = this.externalApiConnector.postForEntity(SERVICE_CONNECTION_PROPERTY, entity,
+					SalesForceBO.class);
+			if(Objects.isNull(responseEntity.getBody())){
+				LOGGER.info("***** RBVDR408Impl - executeConsumeDWPServiceForUpdateStatus END - NULL RESPONSE SALESFORCE API *****");
+				return false;
+			}
+			LOGGER.info("***** RBVDR408Impl - executeConsumeDWPServiceForUpdateStatus ***** Response: {}", getRequestBodyAsJsonFormat(responseEntity.getBody()));
+			LOGGER.info("***** RBVDR408Impl - executeConsumeDWPServiceForUpdateStatus END *****");
+			return Objects.nonNull(responseEntity.getStatusCode().equals(HttpStatus.OK));
+		} catch (RestClientException ex) {
+			this.addAdviceWithDescription("RBVD10094960",ex.getMessage());
+			LOGGER.info("***** RBVDR408Impl - executeConsumeDWPServiceForUpdateStatus ***** Exception: {}", ex.getMessage());
+			return false;
+		}
+
+    }
 
 	private void validateCustomerInformation(CustomerBO customerInformation) {
 		if(isNull(customerInformation)) {
@@ -146,6 +177,21 @@ public class RBVDR221Impl extends RBVDR221Abstract {
 		sigmaSetAlarmStatusDTO.setStatus(STATUS_ALARM);
 		sigmaSetAlarmStatusDTO.setReason("Hubo un problema al consumir el servicio " + serviceName + ", revisar el log e identificar el problema.");
 		return sigmaSetAlarmStatusDTO;
+	}
+
+
+	private String getRequestBodyAsJsonFormat(Object requestBody) {
+		return JsonHelper.getInstance().toJsonString(requestBody);
+	}
+
+	private HttpHeaders createHttpHeaders(SalesforceResponseDTO authorizationData) {
+		HttpHeaders headers = new HttpHeaders();
+		MediaType mediaType = new MediaType("application","json", StandardCharsets.UTF_8);
+		headers.setContentType(mediaType);
+		headers.set(AUTHORIZATION_HEADER,
+				authorizationData.getTokenType().concat(" ").
+						concat(authorizationData.getAccessToken()));
+		return headers;
 	}
 
 }

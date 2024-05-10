@@ -99,6 +99,11 @@
 			<artifactId>PISDR021</artifactId>
 			<version>0.1.4</version>
 		</dependency>
+		<dependency>
+			<groupId>com.bbva.pdwy</groupId>
+			<artifactId>PDWYR008</artifactId>
+			<version>0.1.0</version>
+		</dependency>
 	</dependencies>
 	<build>
 		<finalName>${project.artifactId}</finalName>
@@ -110,7 +115,7 @@
 				<configuration>
 					<instructions>
 						<Bundle-SymbolicName>${project.artifactId}-${project.version}</Bundle-SymbolicName>
-						<Bundle-Category>library-intapiconnector</Bundle-Category>
+						<Bundle-Category>library-intapiconnector-extapiconnector</Bundle-Category>
 						<Export-Package>
 							!*;version="${osgi.version.manifest}"
 						</Export-Package>
