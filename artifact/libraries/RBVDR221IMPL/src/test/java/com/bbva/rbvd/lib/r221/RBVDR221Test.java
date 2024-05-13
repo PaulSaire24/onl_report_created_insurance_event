@@ -137,6 +137,7 @@ public class RBVDR221Test {
 		createdInsrcEvent.getCreatedInsurance().setStatus(new StatusDTO());
 		createdInsrcEvent.getCreatedInsurance().getStatus().setId("Contratada");
 		createdInsrcEvent.getCreatedInsurance().getStatus().setName("Contratada name");
+		createdInsrcEvent.getCreatedInsurance().setContractId("CONID");
 		when(pdwyr008.executeGetAuthenticationData(Mockito.anyString())).thenReturn(salesforceResponseDTO);
 		when(externalApiConnector.postForEntity(anyString(), anyObject(), (Class<SalesForceBO>) any())).thenReturn(new ResponseEntity<>(salesForceBO, HttpStatus.OK));
 

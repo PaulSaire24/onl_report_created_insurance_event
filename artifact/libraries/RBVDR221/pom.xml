@@ -19,7 +19,7 @@
 		<dependency>
 			<groupId>com.bbva.rbvd.dto.insrncsale</groupId>
 			<artifactId>RBVDC201</artifactId>
-			<version>0.23.1</version>
+			<version>0.24.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.bbva.rbvd.dto.rbvdcomunicationdwp</groupId>

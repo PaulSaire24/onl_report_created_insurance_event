@@ -7,7 +7,7 @@ public class SalesForceBO {
     private String employeeCode;
     private String source;
     private StatusBO status;
-
+    private String contractId;
     private String message;
 
     public String getIdQuotation() {
@@ -76,6 +76,7 @@ public class SalesForceBO {
                 ", source='" + source + '\'' +
                 ", status=" + status +
                 ", message='" + message + '\'' +
+                ", contractId='" + contractId + '\'' +
                 '}';
     }
 }
