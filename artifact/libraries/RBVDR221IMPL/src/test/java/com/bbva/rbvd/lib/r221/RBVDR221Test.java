@@ -144,5 +144,20 @@ public class RBVDR221Test {
 		Boolean validation = this.rbvdr221.executeCreatedInsrcEvent(createdInsrcEvent);
 		assertTrue(validation);
 	}
-	
+	@Test
+	public void executeCreatedInsrcEvntBusinessLogic_NullExternalApiConnector() {
+		LOGGER.info("Executing RBVDR221Test - executeCreatedInsrcEvntBusinessLogic_OK ...");
+		SalesforceResponseDTO salesforceResponseDTO = new SalesforceResponseDTO();
+		salesforceResponseDTO.setAccessToken("accessToken");
+		salesforceResponseDTO.setTokenType("Bearer");
+		SalesForceBO salesForceBO = new SalesForceBO();
+		createdInsrcEvent.getCreatedInsurance().setStatus(new StatusDTO());
+		createdInsrcEvent.getCreatedInsurance().getStatus().setId("Contratada");
+		createdInsrcEvent.getCreatedInsurance().getStatus().setName("Contratada name");
+		createdInsrcEvent.getCreatedInsurance().setContractId("CONID");
+		when(pdwyr008.executeGetAuthenticationData(Mockito.anyString())).thenReturn(salesforceResponseDTO);
+		when(externalApiConnector.postForEntity(anyString(), anyObject(), (Class<SalesForceBO>) any())).thenReturn(new ResponseEntity<>(null, HttpStatus.NO_CONTENT));
+		Boolean validation = this.rbvdr221.executeCreatedInsrcEvent(createdInsrcEvent);
+		assertFalse(validation);
+	}
 }
