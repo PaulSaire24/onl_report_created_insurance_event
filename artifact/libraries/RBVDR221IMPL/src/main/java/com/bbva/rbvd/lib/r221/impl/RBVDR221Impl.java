@@ -88,20 +88,6 @@ public class RBVDR221Impl extends RBVDR221Abstract {
 			this.addAdviceWithDescription(ex.getAdviceCode(), ex.getMessage());
 			return false;
 		}
-
-		LOGGER.info("***** RBVDR221Impl - executeCreatedInsrcEvntBusinessLogic ***** Building GifoleInsuranceRequestASO object");
-
-		try {
-			BankEventDTO bank = createdInsrcEvent.getHeader().getOrigin().getBank();
-			GifoleInsuranceRequestASO gifoleRequest = this.mapperHelper.createGifoleServiceRequest(createdInsuranceDTO, createdInsrcEventDAO,
-					customerInformation, bank);
-			this.httpClient.executeGifoleService(gifoleRequest);
-		} catch (BusinessException ex) {
-			this.httpClient.executeSetAlarmStatus(this.createAlarmErrorRequest("createGifoleInsuranceRequest"));
-			this.addAdviceWithDescription(ex.getAdviceCode(), ex.getMessage());
-			return false;
-		}
-
 		SalesforceResponseDTO authentication =  this.pdwyR008.executeGetAuthenticationData(SERVICE_CONNECTION_PROPERTY);
 		LOGGER.info("***** RBVDR221Impl - authentication data dto ***** {}", authentication);
 		SalesForceBO requestBO = UpdateDwpRequest.mapRequestToSalesForceDwpBean(createdInsuranceDTO);
@@ -117,12 +103,25 @@ public class RBVDR221Impl extends RBVDR221Abstract {
 			}
 			LOGGER.info("***** RBVDR408Impl - executeConsumeDWPServiceForUpdateStatus ***** Response: {}", getRequestBodyAsJsonFormat(responseEntity.getBody()));
 			LOGGER.info("***** RBVDR408Impl - executeConsumeDWPServiceForUpdateStatus END *****");
-			return Objects.nonNull(responseEntity.getStatusCode().equals(HttpStatus.OK));
 		} catch (RestClientException ex) {
 			this.addAdviceWithDescription("RBVD10094960",ex.getMessage());
 			LOGGER.info("***** RBVDR408Impl - executeConsumeDWPServiceForUpdateStatus ***** Exception: {}", ex.getMessage());
 			return false;
 		}
+
+		LOGGER.info("***** RBVDR221Impl - executeCreatedInsrcEvntBusinessLogic ***** Building GifoleInsuranceRequestASO object");
+		try {
+			BankEventDTO bank = createdInsrcEvent.getHeader().getOrigin().getBank();
+			GifoleInsuranceRequestASO gifoleRequest = this.mapperHelper.createGifoleServiceRequest(createdInsuranceDTO, createdInsrcEventDAO,
+					customerInformation, bank);
+			this.httpClient.executeGifoleService(gifoleRequest);
+		} catch (BusinessException ex) {
+			this.httpClient.executeSetAlarmStatus(this.createAlarmErrorRequest("createGifoleInsuranceRequest"));
+			this.addAdviceWithDescription(ex.getAdviceCode(), ex.getMessage());
+			return false;
+		}
+		LOGGER.info("***** RBVDR221Impl - executeCreatedInsrcEvntBusinessLogic END *****");
+		return true;
 
     }
 

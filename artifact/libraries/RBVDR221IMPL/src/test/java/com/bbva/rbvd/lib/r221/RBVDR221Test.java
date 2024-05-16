@@ -116,10 +116,16 @@ public class RBVDR221Test {
 	@Test
 	public void executeCreatedInsrcEvntBusinessLogicWithGifoleBusinessException() {
 		LOGGER.info("Executing RBVDR221Test - executeCreatedInsrcEvntBusinessLogicWithGifoleBusinessException ...");
+		SalesforceResponseDTO salesforceResponseDTO = new SalesforceResponseDTO();
+		salesforceResponseDTO.setAccessToken("accessToken");
+		salesforceResponseDTO.setTokenType("Bearer");
+		when(pdwyr008.executeGetAuthenticationData(Mockito.anyString())).thenReturn(salesforceResponseDTO);
+		when(externalApiConnector.postForEntity(anyString(), anyObject(), (Class<SalesForceBO>) any())).thenReturn(new ResponseEntity<>(new SalesForceBO(), HttpStatus.OK));
 
 		when(this.httpClient.executeGifoleService(anyObject())).
 				thenThrow(new BusinessException("RBVD01020013", false, "CONSUMO DEL SERVICIO DE GIFOLE SIN EXITO"));
 
+		createdInsrcEvent.getCreatedInsurance().setStatus(new StatusDTO());
 		Boolean validation = this.rbvdr221.executeCreatedInsrcEvent(createdInsrcEvent);
 
 		assertFalse(validation);
