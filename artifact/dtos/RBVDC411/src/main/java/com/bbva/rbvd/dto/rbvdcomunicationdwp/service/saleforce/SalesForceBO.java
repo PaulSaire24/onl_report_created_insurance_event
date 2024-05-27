@@ -58,6 +58,14 @@ public class SalesForceBO {
         this.status = status;
     }
 
+    public String getContractId() {
+        return contractId;
+    }
+
+    public void setContractId(String contractId) {
+        this.contractId = contractId;
+    }
+
     public String getMessage() {
         return message;
     }
@@ -75,8 +83,8 @@ public class SalesForceBO {
                 ", employeeCode='" + employeeCode + '\'' +
                 ", source='" + source + '\'' +
                 ", status=" + status +
-                ", message='" + message + '\'' +
                 ", contractId='" + contractId + '\'' +
+                ", message='" + message + '\'' +
                 '}';
     }
 }

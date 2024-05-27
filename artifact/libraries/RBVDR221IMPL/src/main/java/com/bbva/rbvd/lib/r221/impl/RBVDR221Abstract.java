@@ -26,7 +26,6 @@ public abstract class RBVDR221Abstract extends AbstractLibrary implements RBVDR2
 	protected PISDR021 pisdR021;
 
 	protected PDWYR008 pdwyR008;
-
 	protected MapperHelper mapperHelper;
 
 	protected HttpClient httpClient;

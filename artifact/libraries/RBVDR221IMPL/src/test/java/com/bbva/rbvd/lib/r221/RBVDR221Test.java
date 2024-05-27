@@ -144,6 +144,7 @@ public class RBVDR221Test {
 		createdInsrcEvent.getCreatedInsurance().getStatus().setId("Contratada");
 		createdInsrcEvent.getCreatedInsurance().getStatus().setName("Contratada name");
 		createdInsrcEvent.getCreatedInsurance().setContractId("CONID");
+		createdInsrcEvent.getCreatedInsurance().getProduct().setId("842");
 		when(pdwyr008.executeGetAuthenticationData(Mockito.anyString())).thenReturn(salesforceResponseDTO);
 		when(externalApiConnector.postForEntity(anyString(), anyObject(), (Class<SalesForceBO>) any())).thenReturn(new ResponseEntity<>(salesForceBO, HttpStatus.OK));
 
@@ -161,6 +162,7 @@ public class RBVDR221Test {
 		createdInsrcEvent.getCreatedInsurance().getStatus().setId("Contratada");
 		createdInsrcEvent.getCreatedInsurance().getStatus().setName("Contratada name");
 		createdInsrcEvent.getCreatedInsurance().setContractId("CONID");
+		createdInsrcEvent.getCreatedInsurance().getProduct().setId("842");
 		when(pdwyr008.executeGetAuthenticationData(Mockito.anyString())).thenReturn(salesforceResponseDTO);
 		when(externalApiConnector.postForEntity(anyString(), anyObject(), (Class<SalesForceBO>) any())).thenReturn(new ResponseEntity<>(null, HttpStatus.NO_CONTENT));
 		Boolean validation = this.rbvdr221.executeCreatedInsrcEvent(createdInsrcEvent);

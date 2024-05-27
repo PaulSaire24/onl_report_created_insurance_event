@@ -11,7 +11,7 @@ public class UpdateDwpRequest {
         SalesForceBO salesForceBO = new SalesForceBO();
         salesForceBO.setIdQuotation(requestBody.getQuotationId());
         salesForceBO.setIdProduct(requestBody.getProduct().getId());
-        salesForceBO.setIdProduct(requestBody.getContractId());
+        salesForceBO.setContractId(requestBody.getContractId());
 
         StatusBO statusBO = new StatusBO();
         statusBO.setId(requestBody.getStatus().getId());
