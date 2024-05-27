@@ -44,7 +44,7 @@ public class RBVDR221Impl extends RBVDR221Abstract {
 	private static final Logger LOGGER = LoggerFactory.getLogger(RBVDR221Impl.class);
 	private static final String STATUS_ALARM = "CRITICAL";
 	private static final String AUTHORIZATION_HEADER = "Authorization";
-	private static final String SERVICE_CONNECTION_PROPERTY = "dwpUpdateSalesForce";
+	private static final String SERVICE_CONNECTION_PROPERTY = "updateStatusSalesForceDwp";
 
 
     @Override
@@ -59,6 +59,7 @@ public class RBVDR221Impl extends RBVDR221Abstract {
 			SalesforceResponseDTO authentication =  this.pdwyR008.executeGetAuthenticationData(SERVICE_CONNECTION_PROPERTY);
 			LOGGER.info("***** RBVDR221Impl - authentication data dto ***** {}", authentication);
 			SalesForceBO requestBO = UpdateDwpRequest.mapRequestToSalesForceDwpBean(createdInsuranceDTO);
+			LOGGER.info("***** RBVDR221Impl - SalesForceBO data ->{}", requestBO);
 			String json = this.getRequestBodyAsJsonFormat(requestBO);
 			HttpEntity<String> entity = new HttpEntity<>(json, createHttpHeaders(authentication));
 
