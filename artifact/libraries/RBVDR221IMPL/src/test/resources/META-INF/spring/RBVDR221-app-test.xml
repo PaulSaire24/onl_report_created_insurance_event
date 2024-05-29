@@ -10,4 +10,7 @@
 	<bean id="pdwyR008" class="org.mockito.Mockito" factory-method="mock">
 		<constructor-arg value="com.bbva.pdwy.lib.r008.PDWYR008"/>
 	</bean>
+	<bean id="pisdR601" class="org.mockito.Mockito" factory-method="mock">
+		<constructor-arg value="com.bbva.pisd.lib.r601.PISDR601"/>
+	</bean>
 </beans>

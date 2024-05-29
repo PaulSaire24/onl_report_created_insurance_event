@@ -11,5 +11,6 @@
 		<property name="mapperHelper" ref="mapperHelper"/>
 		<property name="pisdR012" ref="pisdR012"/>
 		<property name="pdwyR008" ref="pdwyR008"/>
+		<property name="pisdR601" ref="pisdR601"/>
 	</bean>
 </beans>

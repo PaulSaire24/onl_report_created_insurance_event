@@ -6,6 +6,7 @@ import com.bbva.elara.utility.api.connector.APIConnectorBuilder;
 import com.bbva.pdwy.lib.r008.PDWYR008;
 import com.bbva.pisd.lib.r012.PISDR012;
 import com.bbva.pisd.lib.r021.PISDR021;
+import com.bbva.pisd.lib.r601.PISDR601;
 import com.bbva.rbvd.lib.r221.RBVDR221;
 import com.bbva.rbvd.lib.r221.impl.util.HttpClient;
 import com.bbva.rbvd.lib.r221.impl.util.MapperHelper;
@@ -26,8 +27,10 @@ public abstract class RBVDR221Abstract extends AbstractLibrary implements RBVDR2
 	protected PISDR021 pisdR021;
 
 	protected PDWYR008 pdwyR008;
-	protected MapperHelper mapperHelper;
 
+	protected PISDR601 pisdR601;
+
+	protected MapperHelper mapperHelper;
 	protected HttpClient httpClient;
 
 
@@ -71,6 +74,13 @@ public abstract class RBVDR221Abstract extends AbstractLibrary implements RBVDR2
 	*/
 	public void setPdwyR008(PDWYR008 pdwyR008) {
 		this.pdwyR008 = pdwyR008;
+	}
+
+	/**
+	* @param pisdR601 the this.pisdR601 to set
+	*/
+	public void setPisdR601(PISDR601 pisdR601) {
+		this.pisdR601 = pisdR601;
 	}
 
 	public void setMapperHelper(MapperHelper mapperHelper) {

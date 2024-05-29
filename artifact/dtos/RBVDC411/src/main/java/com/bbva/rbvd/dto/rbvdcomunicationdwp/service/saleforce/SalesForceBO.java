@@ -1,53 +1,37 @@
 package com.bbva.rbvd.dto.rbvdcomunicationdwp.service.saleforce;
 
 public class SalesForceBO {
-    private String idQuotation;
-    private String idCustomer;
-    private String idProduct;
-    private String employeeCode;
-    private String source;
+    private String quotationId;
+    private String customerId;
+    private String productId;
     private StatusBO status;
+    private String sourcePayroll;
+    private User auditUser;
+    private Channel channel;
     private String contractId;
-    private String message;
 
-    public String getIdQuotation() {
-        return idQuotation;
+    public String getQuotationId() {
+        return quotationId;
     }
 
-    public void setIdQuotation(String idQuotation) {
-        this.idQuotation = idQuotation;
+    public void setQuotationId(String quotationId) {
+        this.quotationId = quotationId;
     }
 
-    public String getIdCustomer() {
-        return idCustomer;
+    public String getCustomerId() {
+        return customerId;
     }
 
-    public void setIdCustomer(String idCustomer) {
-        this.idCustomer = idCustomer;
+    public void setCustomerId(String customerId) {
+        this.customerId = customerId;
     }
 
-    public String getIdProduct() {
-        return idProduct;
+    public String getProductId() {
+        return productId;
     }
 
-    public void setIdProduct(String idProduct) {
-        this.idProduct = idProduct;
-    }
-
-    public String getEmployeeCode() {
-        return employeeCode;
-    }
-
-    public void setEmployeeCode(String employeeCode) {
-        this.employeeCode = employeeCode;
-    }
-
-    public String getSource() {
-        return source;
-    }
-
-    public void setSource(String source) {
-        this.source = source;
+    public void setProductId(String productId) {
+        this.productId = productId;
     }
 
     public StatusBO getStatus() {
@@ -58,6 +42,30 @@ public class SalesForceBO {
         this.status = status;
     }
 
+    public String getSourcePayroll() {
+        return sourcePayroll;
+    }
+
+    public void setSourcePayroll(String sourcePayroll) {
+        this.sourcePayroll = sourcePayroll;
+    }
+
+    public User getAuditUser() {
+        return auditUser;
+    }
+
+    public void setAuditUser(User auditUser) {
+        this.auditUser = auditUser;
+    }
+
+    public Channel getChannel() {
+        return channel;
+    }
+
+    public void setChannel(Channel channel) {
+        this.channel = channel;
+    }
+
     public String getContractId() {
         return contractId;
     }
@@ -66,25 +74,17 @@ public class SalesForceBO {
         this.contractId = contractId;
     }
 
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
     @Override
     public String toString() {
         return "SalesForceBO{" +
-                "idQuotation='" + idQuotation + '\'' +
-                ", idCustomer='" + idCustomer + '\'' +
-                ", idProduct='" + idProduct + '\'' +
-                ", employeeCode='" + employeeCode + '\'' +
-                ", source='" + source + '\'' +
+                "quotationId='" + quotationId + '\'' +
+                ", customerId='" + customerId + '\'' +
+                ", productId='" + productId + '\'' +
                 ", status=" + status +
+                ", sourcePayroll='" + sourcePayroll + '\'' +
+                ", auditUser=" + auditUser +
+                ", channel=" + channel +
                 ", contractId='" + contractId + '\'' +
-                ", message='" + message + '\'' +
                 '}';
     }
 }

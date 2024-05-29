@@ -11,6 +11,7 @@ import com.bbva.pisd.dto.insurance.utils.PISDErrors;
 import com.bbva.pisd.dto.insurance.utils.PISDProperties;
 
 import com.bbva.pisd.dto.insurance.utils.PISDValidation;
+import com.bbva.pisd.dto.insurancedao.entities.QuotationEntity;
 import com.bbva.rbvd.dto.insrncsale.dao.CreatedInsrcEventDAO;
 import com.bbva.rbvd.dto.insrncsale.dao.RequiredFieldsEmissionDAO;
 
@@ -58,7 +59,9 @@ public class RBVDR221Impl extends RBVDR221Abstract {
 			LOGGER.info("***** RBVDR221Impl - product vida ley - start");
 			SalesforceResponseDTO authentication =  this.pdwyR008.executeGetAuthenticationData(SERVICE_CONNECTION_PROPERTY);
 			LOGGER.info("***** RBVDR221Impl - authentication data dto ***** {}", authentication);
-			SalesForceBO requestBO = UpdateDwpRequest.mapRequestToSalesForceDwpBean(createdInsuranceDTO);
+			QuotationEntity quotationEntity = this.pisdR601.executeFindQuotationByReferenceAndPayrollId(createdInsuranceDTO.getQuotationId());
+			String status = isNull(quotationEntity.getRfqInternalId())  ? "CONTRACTED" : "PAID";
+			SalesForceBO requestBO = UpdateDwpRequest.mapRequestToSalesForceDwpBean(createdInsuranceDTO,status);
 			LOGGER.info("***** RBVDR221Impl - SalesForceBO data ->{}", requestBO);
 			String json = this.getRequestBodyAsJsonFormat(requestBO);
 			HttpEntity<String> entity = new HttpEntity<>(json, createHttpHeaders(authentication));

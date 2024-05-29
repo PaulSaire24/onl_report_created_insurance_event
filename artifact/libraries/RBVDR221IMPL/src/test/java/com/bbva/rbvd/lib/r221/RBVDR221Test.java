@@ -8,8 +8,10 @@ import com.bbva.elara.utility.api.connector.APIConnector;
 import com.bbva.pdwy.dto.auth.salesforce.SalesforceResponseDTO;
 import com.bbva.pdwy.lib.r008.PDWYR008;
 import com.bbva.pisd.dto.insurance.bo.customer.CustomerBO;
+import com.bbva.pisd.dto.insurancedao.entities.QuotationEntity;
 import com.bbva.pisd.lib.r012.PISDR012;
 
+import com.bbva.pisd.lib.r601.PISDR601;
 import com.bbva.rbvd.dto.insrncsale.events.CreatedInsrcEventDTO;
 import com.bbva.rbvd.dto.insrncsale.events.StatusDTO;
 import com.bbva.rbvd.dto.insrncsale.mock.MockData;
@@ -62,6 +64,7 @@ public class RBVDR221Test {
 	private HttpClient httpClient;
 	private PISDR012 pisdR012;
 	private PDWYR008 pdwyr008;
+	private PISDR601 pisdr601;
 	private APIConnector externalApiConnector;
 
 	@Before
@@ -78,9 +81,11 @@ public class RBVDR221Test {
 
 		pisdR012 = mock(PISDR012.class);
 		pdwyr008 = mock(PDWYR008.class);
+		pisdr601 = mock(PISDR601.class);
 		externalApiConnector = mock(APIConnector.class);
 		rbvdr221.setPisdR012(pisdR012);
 		rbvdr221.setPdwyR008(pdwyr008);
+		rbvdr221.setPisdR601(pisdr601);
 		rbvdr221.setExternalApiConnector(externalApiConnector);
 
 		when(this.httpClient.executeListCustomerService(anyString())).thenReturn(new CustomerBO());
@@ -145,7 +150,10 @@ public class RBVDR221Test {
 		createdInsrcEvent.getCreatedInsurance().getStatus().setName("Contratada name");
 		createdInsrcEvent.getCreatedInsurance().setContractId("CONID");
 		createdInsrcEvent.getCreatedInsurance().getProduct().setId("842");
+		QuotationEntity quotationEntity = new QuotationEntity();
+		quotationEntity.setRfqInternalId("RFQID");
 		when(pdwyr008.executeGetAuthenticationData(Mockito.anyString())).thenReturn(salesforceResponseDTO);
+		when(pisdr601.executeFindQuotationByReferenceAndPayrollId(Mockito.anyString())).thenReturn(quotationEntity);
 		when(externalApiConnector.postForEntity(anyString(), anyObject(), (Class<SalesForceBO>) any())).thenReturn(new ResponseEntity<>(salesForceBO, HttpStatus.OK));
 
 		Boolean validation = this.rbvdr221.executeCreatedInsrcEvent(createdInsrcEvent);
@@ -163,7 +171,10 @@ public class RBVDR221Test {
 		createdInsrcEvent.getCreatedInsurance().getStatus().setName("Contratada name");
 		createdInsrcEvent.getCreatedInsurance().setContractId("CONID");
 		createdInsrcEvent.getCreatedInsurance().getProduct().setId("842");
+		QuotationEntity quotationEntity = new QuotationEntity();
+		quotationEntity.setRfqInternalId("RFQID");
 		when(pdwyr008.executeGetAuthenticationData(Mockito.anyString())).thenReturn(salesforceResponseDTO);
+		when(pisdr601.executeFindQuotationByReferenceAndPayrollId(Mockito.anyString())).thenReturn(quotationEntity);
 		when(externalApiConnector.postForEntity(anyString(), anyObject(), (Class<SalesForceBO>) any())).thenReturn(new ResponseEntity<>(null, HttpStatus.NO_CONTENT));
 		Boolean validation = this.rbvdr221.executeCreatedInsrcEvent(createdInsrcEvent);
 		assertFalse(validation);
