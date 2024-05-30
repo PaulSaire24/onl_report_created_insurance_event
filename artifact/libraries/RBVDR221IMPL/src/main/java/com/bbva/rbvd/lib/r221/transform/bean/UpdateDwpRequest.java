@@ -1,12 +1,11 @@
 package com.bbva.rbvd.lib.r221.transform.bean;
 
 import com.bbva.rbvd.dto.insrncsale.events.CreatedInsuranceDTO;
-import com.bbva.rbvd.dto.rbvdcomunicationdwp.service.saleforce.Channel;
+import com.bbva.rbvd.dto.rbvdcomunicationdwp.service.saleforce.ChannelBO;
 import com.bbva.rbvd.dto.rbvdcomunicationdwp.service.saleforce.SalesForceBO;
 import com.bbva.rbvd.dto.rbvdcomunicationdwp.service.saleforce.StatusBO;
-import com.bbva.rbvd.dto.rbvdcomunicationdwp.service.saleforce.User;
+import com.bbva.rbvd.dto.rbvdcomunicationdwp.service.saleforce.UserBO;
 
-import javax.jws.soap.SOAPBinding;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
@@ -21,7 +20,7 @@ public class UpdateDwpRequest {
         salesForceBO.setContractId(requestBody.getContractId());
         salesForceBO.setSourcePayroll("FU");
 
-        User user = new User();
+        UserBO user = new UserBO();
         user.setUser("XP12321");
         LocalDate fechaActual = LocalDate.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -29,7 +28,7 @@ public class UpdateDwpRequest {
         user.setDate(LocalDate.parse(fechaFormateada));
         salesForceBO.setAuditUser(user);
 
-        Channel channel = new Channel();
+        ChannelBO channel = new ChannelBO();
         channel.setId("FU");
         salesForceBO.setChannel(channel);
 

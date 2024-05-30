@@ -2,7 +2,7 @@ package com.bbva.rbvd.dto.rbvdcomunicationdwp.service.saleforce;
 
 import java.time.LocalDate;
 
-public class User {
+public class UserBO {
     private String user;
     private LocalDate date;
 

@@ -64,6 +64,7 @@ public class RBVDR221Impl extends RBVDR221Abstract {
 			SalesForceBO requestBO = UpdateDwpRequest.mapRequestToSalesForceDwpBean(createdInsuranceDTO,status);
 			LOGGER.info("***** RBVDR221Impl - SalesForceBO data ->{}", requestBO);
 			String json = this.getRequestBodyAsJsonFormat(requestBO);
+			LOGGER.info("***** RBVDR221Impl - json data ->{}", json);
 			HttpEntity<String> entity = new HttpEntity<>(json, createHttpHeaders(authentication));
 
 			try {

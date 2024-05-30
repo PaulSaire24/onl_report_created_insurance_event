@@ -1,6 +1,6 @@
 package com.bbva.rbvd.dto.rbvdcomunicationdwp.service.saleforce;
 
-public class Channel {
+public class ChannelBO {
     private String id;
 
     public String getId() {

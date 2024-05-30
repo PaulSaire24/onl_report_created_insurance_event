@@ -6,8 +6,8 @@ public class SalesForceBO {
     private String productId;
     private StatusBO status;
     private String sourcePayroll;
-    private User auditUser;
-    private Channel channel;
+    private UserBO auditUser;
+    private ChannelBO channel;
     private String contractId;
 
     public String getQuotationId() {
@@ -50,19 +50,19 @@ public class SalesForceBO {
         this.sourcePayroll = sourcePayroll;
     }
 
-    public User getAuditUser() {
+    public UserBO getAuditUser() {
         return auditUser;
     }
 
-    public void setAuditUser(User auditUser) {
+    public void setAuditUser(UserBO auditUser) {
         this.auditUser = auditUser;
     }
 
-    public Channel getChannel() {
+    public ChannelBO getChannel() {
         return channel;
     }
 
-    public void setChannel(Channel channel) {
+    public void setChannel(ChannelBO channel) {
         this.channel = channel;
     }
 
