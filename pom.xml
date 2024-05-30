@@ -4,7 +4,7 @@
 	<parent>
 		<artifactId>elara-project</artifactId>
 		<groupId>com.bbva.elara</groupId>
-		<version>7.10.0</version>
+		<version>7.12.9</version>
 	</parent>
 	<artifactId>onl_report_created_insurance_event</artifactId>
 	<groupId>com.bbva.rbvd</groupId>
@@ -13,7 +13,7 @@
 	<name>onl_report_created_insurance_event</name>
 	<description>Deployment unit onl_report_created_insurance_event of uuaa rbvd</description>
 	<properties>
-		<apx.core.online.version>7.10.0</apx.core.online.version>
+		<apx.core.online.version>7.12.9</apx.core.online.version>
 		<outputDirectoryLibraries>../../../target/libraries</outputDirectoryLibraries>
 		<outputDirectoryTransactions>../../../target/transactions</outputDirectoryTransactions>
 		<jacoco.no.coverage>0.00</jacoco.no.coverage>
