@@ -21,13 +21,14 @@ public class RBVDT21101PETransaction extends AbstractRBVDT21101PETransaction {
 		LOGGER.info("***** RBVDT21101PETransaction - START *****");
 
 		String aap = (String) this.getRequestHeader().getHeaderParameter(RequestHeaderParamsName.AAP);
+		String user = (String) this.getRequestHeader().getHeaderParameter(RequestHeaderParamsName.USERCODE);
 
 		CreatedInsuranceDTO createdInsuranceDTO = this.getCreatedinsurance();
 		createdInsuranceDTO.setAap(aap);
 
 		CreatedInsrcEventDTO createdInsrcEvent = new CreatedInsrcEventDTO(createdInsuranceDTO, this.getHeader());
 
-		Boolean successed = rbvdR221.executeCreatedInsrcEvent(createdInsrcEvent);
+		Boolean successed = rbvdR221.executeCreatedInsrcEvent(createdInsrcEvent,user);
 
 		if(successed) {
 			LOGGER.info("***** CREATED INSURANCE EVENT WAS SUCCESSED *****");

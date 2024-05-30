@@ -4,7 +4,7 @@ import java.time.LocalDate;
 
 public class UserBO {
     private String user;
-    private LocalDate date;
+    private String date;
 
     public String getUser() {
         return user;
@@ -14,11 +14,12 @@ public class UserBO {
         this.user = user;
     }
 
-    public LocalDate getDate() {
+
+    public String getDate() {
         return date;
     }
 
-    public void setDate(LocalDate date) {
+    public void setDate(String date) {
         this.date = date;
     }
 

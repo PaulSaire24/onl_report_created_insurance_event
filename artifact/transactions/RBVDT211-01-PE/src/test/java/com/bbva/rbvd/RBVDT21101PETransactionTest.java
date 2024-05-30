@@ -29,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.anyObject;
 
@@ -77,14 +78,14 @@ public class RBVDT21101PETransactionTest {
 
 	@Test
 	public void testTrue() {
-		when(this.rbvdR221.executeCreatedInsrcEvent(anyObject())).
+		when(this.rbvdR221.executeCreatedInsrcEvent(anyObject(),anyString())).
 				thenReturn(true);
 		this.transaction.execute();
 	}
 
 	@Test
 	public void testFalse() {
-		when(this.rbvdR221.executeCreatedInsrcEvent(anyObject())).
+		when(this.rbvdR221.executeCreatedInsrcEvent(anyObject(),anyString())).
 				thenReturn(false);
 		this.transaction.execute();
 	}

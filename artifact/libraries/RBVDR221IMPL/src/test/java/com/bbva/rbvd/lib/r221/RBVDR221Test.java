@@ -96,8 +96,8 @@ public class RBVDR221Test {
 		LOGGER.info("Executing RBVDR221Test - executeCreatedInsrcEventWithCustomerInfoBusinessException ...");
 
 		when(this.httpClient.executeListCustomerService(anyString())).thenReturn(null);
-
-		Boolean validation = this.rbvdr221.executeCreatedInsrcEvent(createdInsrcEvent);
+		String user = "ZG13001";
+		Boolean validation = this.rbvdr221.executeCreatedInsrcEvent(createdInsrcEvent,user);
 
 		assertFalse(validation);
 		assertEquals("PISD00120033", this.rbvdr221.getAdviceList().get(0).getCode());
@@ -110,8 +110,8 @@ public class RBVDR221Test {
 
 		when(this.httpClient.executeMailSendService(anyObject())).
 				thenThrow(new BusinessException("RBVD01020014", false, "CONSUMO DEL SERVICIO DE ENVIO DE CORREO SIN EXITO"));
-
-		Boolean validation = this.rbvdr221.executeCreatedInsrcEvent(createdInsrcEvent);
+		String user = "ZG13001";
+		Boolean validation = this.rbvdr221.executeCreatedInsrcEvent(createdInsrcEvent,user);
 
 		assertFalse(validation);
 		assertEquals("RBVD01020014", this.rbvdr221.getAdviceList().get(0).getCode());
@@ -131,7 +131,8 @@ public class RBVDR221Test {
 				thenThrow(new BusinessException("RBVD01020013", false, "CONSUMO DEL SERVICIO DE GIFOLE SIN EXITO"));
 
 		createdInsrcEvent.getCreatedInsurance().setStatus(new StatusDTO());
-		Boolean validation = this.rbvdr221.executeCreatedInsrcEvent(createdInsrcEvent);
+		String user = "ZG13001";
+		Boolean validation = this.rbvdr221.executeCreatedInsrcEvent(createdInsrcEvent,user);
 
 		assertFalse(validation);
 		assertEquals("RBVD01020013", this.rbvdr221.getAdviceList().get(0).getCode());
@@ -155,8 +156,8 @@ public class RBVDR221Test {
 		when(pdwyr008.executeGetAuthenticationData(Mockito.anyString())).thenReturn(salesforceResponseDTO);
 		when(pisdr601.executeFindQuotationByReferenceAndPayrollId(Mockito.anyString())).thenReturn(quotationEntity);
 		when(externalApiConnector.postForEntity(anyString(), anyObject(), (Class<SalesForceBO>) any())).thenReturn(new ResponseEntity<>(salesForceBO, HttpStatus.OK));
-
-		Boolean validation = this.rbvdr221.executeCreatedInsrcEvent(createdInsrcEvent);
+		String user = "ZG13001";
+		Boolean validation = this.rbvdr221.executeCreatedInsrcEvent(createdInsrcEvent,user);
 		assertTrue(validation);
 	}
 	@Test
@@ -176,7 +177,8 @@ public class RBVDR221Test {
 		when(pdwyr008.executeGetAuthenticationData(Mockito.anyString())).thenReturn(salesforceResponseDTO);
 		when(pisdr601.executeFindQuotationByReferenceAndPayrollId(Mockito.anyString())).thenReturn(quotationEntity);
 		when(externalApiConnector.postForEntity(anyString(), anyObject(), (Class<SalesForceBO>) any())).thenReturn(new ResponseEntity<>(null, HttpStatus.NO_CONTENT));
-		Boolean validation = this.rbvdr221.executeCreatedInsrcEvent(createdInsrcEvent);
+		String user = "ZG13001";
+		Boolean validation = this.rbvdr221.executeCreatedInsrcEvent(createdInsrcEvent,user);
 		assertFalse(validation);
 	}
 }

@@ -12,7 +12,7 @@ import java.time.format.DateTimeFormatter;
 
 public class UpdateDwpRequest {
 
-    public static SalesForceBO mapRequestToSalesForceDwpBean(CreatedInsuranceDTO requestBody, String status){
+    public static SalesForceBO mapRequestToSalesForceDwpBean(CreatedInsuranceDTO requestBody,String status,String userCode){
         SalesForceBO salesForceBO = new SalesForceBO();
         salesForceBO.setCustomerId(requestBody.getHolder().getId());
         salesForceBO.setQuotationId(requestBody.getQuotationId());
@@ -21,11 +21,11 @@ public class UpdateDwpRequest {
         salesForceBO.setSourcePayroll("FU");
 
         UserBO user = new UserBO();
-        user.setUser("XP12321");
+        user.setUser(userCode);
         LocalDate fechaActual = LocalDate.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         String fechaFormateada = fechaActual.format(formatter);
-        user.setDate(LocalDate.parse(fechaFormateada));
+        user.setDate(fechaFormateada);
         salesForceBO.setAuditUser(user);
 
         ChannelBO channel = new ChannelBO();

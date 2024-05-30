@@ -49,7 +49,7 @@ public class RBVDR221Impl extends RBVDR221Abstract {
 
 
     @Override
-	public Boolean executeCreatedInsrcEvent(CreatedInsrcEventDTO createdInsrcEvent) {
+	public Boolean executeCreatedInsrcEvent(CreatedInsrcEventDTO createdInsrcEvent, String user) {
 		LOGGER.info("***** RBVDR221Impl - executeCreatedInsrcEvntBusinessLogic START *****");
 		LOGGER.info("***** RBVDR221Impl - executeCreatedInsrcEvntBusinessLogic RequestBody {} *****", createdInsrcEvent);
 
@@ -61,7 +61,7 @@ public class RBVDR221Impl extends RBVDR221Abstract {
 			LOGGER.info("***** RBVDR221Impl - authentication data dto ***** {}", authentication);
 			QuotationEntity quotationEntity = this.pisdR601.executeFindQuotationByReferenceAndPayrollId(createdInsuranceDTO.getQuotationId());
 			String status = isNull(quotationEntity.getRfqInternalId())  ? "CONTRACTED" : "PAID";
-			SalesForceBO requestBO = UpdateDwpRequest.mapRequestToSalesForceDwpBean(createdInsuranceDTO,status);
+			SalesForceBO requestBO = UpdateDwpRequest.mapRequestToSalesForceDwpBean(createdInsuranceDTO,status,user);
 			LOGGER.info("***** RBVDR221Impl - SalesForceBO data ->{}", requestBO);
 			String json = this.getRequestBodyAsJsonFormat(requestBO);
 			LOGGER.info("***** RBVDR221Impl - json data ->{}", json);
