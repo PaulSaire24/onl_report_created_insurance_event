@@ -15,7 +15,7 @@
 	<properties>
 		<osgi.version.manifest>0.0</osgi.version.manifest>
 		<sonar.coverage.exclusions>
-			/src/main/java/com/bbva/rbvd/dto/rbvdcomunicationdwp/service/saleforce/**.java,
+			/src/main/java/com/bbva/rbvd/dto/rbvdcomunicationdwp/**/**.java
 		</sonar.coverage.exclusions>
 	</properties>
 	<dependencies>
