@@ -63,11 +63,7 @@ public class RBVDR221Impl extends RBVDR221Abstract {
 			QuotationEntity quotationEntity = this.pisdR601.executeFindQuotationByReferenceAndPayrollId(createdInsuranceDTO.getQuotationId());
 			LOGGER.info("***** RBVDR221Impl - quotationEntity data dto ***** {}", quotationEntity);
 			String status = null;
-			if(nonNull(quotationEntity.getRfqInternalId()) && isNull(quotationEntity.getPayrollId())){
-				status = "CONTRACTED";
-			} else if (nonNull(quotationEntity.getPayrollId())) {
-				status = "CLOSED";
-			}
+			status = getStatus(quotationEntity, status);
 
 			SalesForceBO requestBO = UpdateDwpRequest.mapRequestToSalesForceDwpBean(createdInsuranceDTO,status,user);
 			LOGGER.info("***** RBVDR221Impl - SalesForceBO data ->{}", requestBO);
@@ -141,6 +137,15 @@ public class RBVDR221Impl extends RBVDR221Abstract {
 			return true;
 		}
     }
+
+	private String getStatus(QuotationEntity quotationEntity, String status) {
+		if(nonNull(quotationEntity.getRfqInternalId()) && isNull(quotationEntity.getPayrollId())){
+			status = "CONTRACTED";
+		} else if (nonNull(quotationEntity.getPayrollId())) {
+			status = "CLOSED";
+		}
+		return status;
+	}
 
 	private void validateCustomerInformation(CustomerBO customerInformation) {
 		if(isNull(customerInformation)) {
