@@ -39,6 +39,7 @@ import java.math.BigDecimal;
 import java.util.Objects;
 
 import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 public class RBVDR221Impl extends RBVDR221Abstract {
 
@@ -60,7 +61,14 @@ public class RBVDR221Impl extends RBVDR221Abstract {
 			SalesforceResponseDTO authentication =  this.pdwyR008.executeGetAuthenticationData(SERVICE_CONNECTION_PROPERTY);
 			LOGGER.info("***** RBVDR221Impl - authentication data dto ***** {}", authentication);
 			QuotationEntity quotationEntity = this.pisdR601.executeFindQuotationByReferenceAndPayrollId(createdInsuranceDTO.getQuotationId());
-			String status = isNull(quotationEntity.getRfqInternalId())  ? "CONTRACTED" : "PAID";
+			LOGGER.info("***** RBVDR221Impl - quotationEntity data dto ***** {}", quotationEntity);
+			String status = null;
+			if(nonNull(quotationEntity.getRfqInternalId()) && isNull(quotationEntity.getPayrollId())){
+				status = "CONTRACTED";
+			} else if (nonNull(quotationEntity.getPayrollId())) {
+				status = "CLOSED";
+			}
+
 			SalesForceBO requestBO = UpdateDwpRequest.mapRequestToSalesForceDwpBean(createdInsuranceDTO,status,user);
 			LOGGER.info("***** RBVDR221Impl - SalesForceBO data ->{}", requestBO);
 			String json = this.getRequestBodyAsJsonFormat(requestBO);
