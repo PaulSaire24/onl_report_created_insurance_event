@@ -62,7 +62,7 @@ public class RBVDR221Impl extends RBVDR221Abstract {
 			LOGGER.info("***** RBVDR221Impl - authentication data dto ***** {}", authentication);
 			QuotationEntity quotationEntity = this.pisdR601.executeFindQuotationByReferenceAndPayrollId(createdInsuranceDTO.getQuotationId());
 			LOGGER.info("***** RBVDR221Impl - quotationEntity data dto ***** {}", quotationEntity);
-			String status = getStatus(quotationEntity);
+			String status = getStatus(quotationEntity,createdInsuranceDTO.getStatus().getId());
 
 			SalesForceBO requestBO = UpdateDwpRequest.mapRequestToSalesForceDwpBean(createdInsuranceDTO,status,user);
 			LOGGER.info("***** RBVDR221Impl - SalesForceBO data ->{}", requestBO);
@@ -137,11 +137,11 @@ public class RBVDR221Impl extends RBVDR221Abstract {
 		}
     }
 
-	private String getStatus(QuotationEntity quotationEntity) {
+	private String getStatus(QuotationEntity quotationEntity, String statusId) {
 		String status;
-		if(nonNull(quotationEntity.getRfqInternalId()) && isNull(quotationEntity.getPayrollId())){
+		if(nonNull(quotationEntity.getRfqInternalId()) && isNull(quotationEntity.getPayrollId()) && "PREFORMALIZADA".equalsIgnoreCase(statusId)){
 			status = "CONTRACTED";
-		} else if (nonNull(quotationEntity.getPayrollId())) {
+		} else if (nonNull(quotationEntity.getPayrollId()) && "FORMALIZADA".equalsIgnoreCase(statusId)) {
 			status = "CLOSED";
 		}else {
 			status = "PAYROLL IN PROGRESS";

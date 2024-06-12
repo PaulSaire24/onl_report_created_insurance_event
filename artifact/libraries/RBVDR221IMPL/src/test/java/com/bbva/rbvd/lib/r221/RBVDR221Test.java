@@ -161,19 +161,42 @@ public class RBVDR221Test {
 		assertTrue(validation);
 	}
 	@Test
-	public void executeCreatedInsrcEvntBusinessLogic_NullExternalApiConnector() {
+	public void executeCreatedInsrcEvntBusinessLogic_NullExternalApiConnector_preformaliada() {
 		LOGGER.info("Executing RBVDR221Test - executeCreatedInsrcEvntBusinessLogic_OK ...");
 		SalesforceResponseDTO salesforceResponseDTO = new SalesforceResponseDTO();
 		salesforceResponseDTO.setAccessToken("accessToken");
 		salesforceResponseDTO.setTokenType("Bearer");
 		SalesForceBO salesForceBO = new SalesForceBO();
 		createdInsrcEvent.getCreatedInsurance().setStatus(new StatusDTO());
-		createdInsrcEvent.getCreatedInsurance().getStatus().setId("Contratada");
+		createdInsrcEvent.getCreatedInsurance().getStatus().setId("preformalizada");
 		createdInsrcEvent.getCreatedInsurance().getStatus().setName("Contratada name");
 		createdInsrcEvent.getCreatedInsurance().setContractId("CONID");
 		createdInsrcEvent.getCreatedInsurance().getProduct().setId("842");
 		QuotationEntity quotationEntity = new QuotationEntity();
 		quotationEntity.setRfqInternalId("RFQID");
+		when(pdwyr008.executeGetAuthenticationData(Mockito.anyString())).thenReturn(salesforceResponseDTO);
+		when(pisdr601.executeFindQuotationByReferenceAndPayrollId(Mockito.anyString())).thenReturn(quotationEntity);
+		when(externalApiConnector.postForEntity(anyString(), anyObject(), (Class<SalesForceBO>) any())).thenReturn(new ResponseEntity<>(null, HttpStatus.NO_CONTENT));
+		String user = "ZG13001";
+		Boolean validation = this.rbvdr221.executeCreatedInsrcEvent(createdInsrcEvent,user);
+		assertFalse(validation);
+	}
+
+	@Test
+	public void executeCreatedInsrcEvntBusinessLogic_NullExternalApiConnector_formaliada() {
+		LOGGER.info("Executing RBVDR221Test - executeCreatedInsrcEvntBusinessLogic_OK ...");
+		SalesforceResponseDTO salesforceResponseDTO = new SalesforceResponseDTO();
+		salesforceResponseDTO.setAccessToken("accessToken");
+		salesforceResponseDTO.setTokenType("Bearer");
+		SalesForceBO salesForceBO = new SalesForceBO();
+		createdInsrcEvent.getCreatedInsurance().setStatus(new StatusDTO());
+		createdInsrcEvent.getCreatedInsurance().getStatus().setId("formalizada");
+		createdInsrcEvent.getCreatedInsurance().getStatus().setName("Contratada name");
+		createdInsrcEvent.getCreatedInsurance().setContractId("CONID");
+		createdInsrcEvent.getCreatedInsurance().getProduct().setId("842");
+		QuotationEntity quotationEntity = new QuotationEntity();
+		quotationEntity.setRfqInternalId("RFQID");
+		quotationEntity.setPayrollId("RFQID");
 		when(pdwyr008.executeGetAuthenticationData(Mockito.anyString())).thenReturn(salesforceResponseDTO);
 		when(pisdr601.executeFindQuotationByReferenceAndPayrollId(Mockito.anyString())).thenReturn(quotationEntity);
 		when(externalApiConnector.postForEntity(anyString(), anyObject(), (Class<SalesForceBO>) any())).thenReturn(new ResponseEntity<>(null, HttpStatus.NO_CONTENT));
