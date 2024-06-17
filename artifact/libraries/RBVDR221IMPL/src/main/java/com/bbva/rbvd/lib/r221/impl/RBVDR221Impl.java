@@ -28,7 +28,10 @@ import com.bbva.rbvd.lib.r221.transform.bean.MapperBean;
 import com.bbva.rbvd.lib.r221.util.JsonHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClientException;
 
 import java.nio.charset.StandardCharsets;
@@ -37,9 +40,6 @@ import java.util.HashMap;
 
 import java.math.BigDecimal;
 import java.util.Objects;
-
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
 
 public class RBVDR221Impl extends RBVDR221Abstract {
 
@@ -75,7 +75,7 @@ public class RBVDR221Impl extends RBVDR221Abstract {
 			try {
 				ResponseEntity<SalesForceBO> responseEntity = this.externalApiConnector.postForEntity(SERVICE_CONNECTION_PROPERTY, entity,
 						SalesForceBO.class);
-				if(isNull(responseEntity.getBody())){
+				if(Objects.isNull(responseEntity.getBody())){
 					LOGGER.info("***** RBVDR408Impl - executeConsumeDWPServiceForUpdateStatus END - NULL RESPONSE SALESFORCE API *****");
 					return false;
 				}
@@ -141,16 +141,16 @@ public class RBVDR221Impl extends RBVDR221Abstract {
 
 	private String getStatus(QuotationEntity quotationEntity, String statusId) {
 		String status = null;
-		if(isNull(quotationEntity.getRfqInternalId()) && "PREFORMALIZADA".equalsIgnoreCase(statusId)){
+		if(Objects.isNull(quotationEntity.getRfqInternalId()) && "PREFORMALIZADA".equalsIgnoreCase(statusId)){
 			status = "CONTRACTED";
-		} else if (nonNull(quotationEntity.getRfqInternalId()) && "FORMALIZADA".equalsIgnoreCase(statusId)) {
+		} else if (Objects.nonNull(quotationEntity.getRfqInternalId()) && "FORMALIZADA".equalsIgnoreCase(statusId)) {
 			status = "CLOSED";
 		}
 		return status;
 	}
 
 	private void validateCustomerInformation(CustomerBO customerInformation) {
-		if(isNull(customerInformation)) {
+		if(Objects.isNull(customerInformation)) {
 			throw PISDValidation.build(PISDErrors.ERROR_CONNECTION_VALIDATE_CUSTOMER_SERVICE);
 		}
 	}
