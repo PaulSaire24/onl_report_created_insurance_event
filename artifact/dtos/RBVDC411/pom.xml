@@ -5,11 +5,11 @@
 	<parent>
 		<groupId>com.bbva.rbvd</groupId>
 		<artifactId>DTOS-onl_report_created_insurance_event</artifactId>
-		<version>0.3.7</version>
+		<version>0.3.8</version>
 	</parent>
 	<groupId>com.bbva.rbvd.dto.rbvdcomunicationdwp</groupId>
 	<artifactId>RBVDC411</artifactId>
-	<version>0.3.7</version>
+	<version>0.3.8</version>
 	<packaging>bundle</packaging>
 	<description>dto for comunication to dwp</description>
 	<properties>
