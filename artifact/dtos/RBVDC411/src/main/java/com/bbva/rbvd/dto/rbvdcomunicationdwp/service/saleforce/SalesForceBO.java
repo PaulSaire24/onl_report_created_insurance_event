@@ -10,6 +10,8 @@ public class SalesForceBO {
     private ChannelBO channel;
     private String contractId;
 
+    private String message;
+
     public String getQuotationId() {
         return quotationId;
     }
@@ -74,6 +76,14 @@ public class SalesForceBO {
         this.contractId = contractId;
     }
 
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
     @Override
     public String toString() {
         return "SalesForceBO{" +
@@ -85,6 +95,7 @@ public class SalesForceBO {
                 ", auditUser=" + auditUser +
                 ", channel=" + channel +
                 ", contractId='" + contractId + '\'' +
+                ", message='" + message + '\'' +
                 '}';
     }
 }
