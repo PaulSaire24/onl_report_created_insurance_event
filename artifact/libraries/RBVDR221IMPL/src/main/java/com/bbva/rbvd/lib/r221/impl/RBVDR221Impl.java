@@ -75,7 +75,7 @@ public class RBVDR221Impl extends RBVDR221Abstract {
 			try {
 				ResponseEntity<SalesForceBO> responseEntity = this.externalApiConnector.postForEntity(SERVICE_CONNECTION_PROPERTY, entity,
 						SalesForceBO.class);
-				if(Objects.isNull(responseEntity.getBody())){
+				if(isNull(responseEntity.getBody())){
 					LOGGER.info("***** RBVDR408Impl - executeConsumeDWPServiceForUpdateStatus END - NULL RESPONSE SALESFORCE API *****");
 					return false;
 				}
@@ -140,13 +140,11 @@ public class RBVDR221Impl extends RBVDR221Abstract {
     }
 
 	private String getStatus(QuotationEntity quotationEntity, String statusId) {
-		String status;
-		if(nonNull(quotationEntity.getRfqInternalId()) && isNull(quotationEntity.getPayrollId()) && "PREFORMALIZADA".equalsIgnoreCase(statusId)){
+		String status = null;
+		if(isNull(quotationEntity.getRfqInternalId()) && "PREFORMALIZADA".equalsIgnoreCase(statusId)){
 			status = "CONTRACTED";
-		} else if (nonNull(quotationEntity.getPayrollId()) && "FORMALIZADA".equalsIgnoreCase(statusId)) {
+		} else if (nonNull(quotationEntity.getRfqInternalId()) && "FORMALIZADA".equalsIgnoreCase(statusId)) {
 			status = "CLOSED";
-		}else {
-			status = "PAYROLL IN PROGRESS";
 		}
 		return status;
 	}
