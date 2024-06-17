@@ -11,7 +11,7 @@ import com.bbva.pisd.dto.insurance.utils.PISDErrors;
 import com.bbva.pisd.dto.insurance.utils.PISDProperties;
 
 import com.bbva.pisd.dto.insurance.utils.PISDValidation;
-import com.bbva.pisd.dto.insurancedao.entities.QuotationEntity;
+import com.bbva.rbvd.dto.rbvdcomunicationdwp.service.entities.QuotationEntity;
 import com.bbva.rbvd.dto.insrncsale.dao.CreatedInsrcEventDAO;
 import com.bbva.rbvd.dto.insrncsale.dao.RequiredFieldsEmissionDAO;
 
@@ -24,7 +24,7 @@ import com.bbva.rbvd.dto.insrncsale.sigma.SigmaSetAlarmStatusDTO;
 import com.bbva.rbvd.dto.insrncsale.utils.RBVDProperties;
 
 import com.bbva.rbvd.dto.rbvdcomunicationdwp.service.saleforce.SalesForceBO;
-import com.bbva.rbvd.lib.r221.transform.bean.UpdateDwpRequest;
+import com.bbva.rbvd.lib.r221.transform.bean.MapperBean;
 import com.bbva.rbvd.lib.r221.util.JsonHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,11 +60,13 @@ public class RBVDR221Impl extends RBVDR221Abstract {
 			LOGGER.info("***** RBVDR221Impl - product vida ley - start");
 			SalesforceResponseDTO authentication =  this.pdwyR008.executeGetAuthenticationData(SERVICE_CONNECTION_PROPERTY);
 			LOGGER.info("***** RBVDR221Impl - authentication data dto ***** {}", authentication);
-			QuotationEntity quotationEntity = this.pisdR601.executeFindQuotationByReferenceAndPayrollId(createdInsuranceDTO.getQuotationId());
+			Map<String,Object> quotationMap = this.pisdR601.executeFindQuotationByReferenceAndPayrollId(createdInsuranceDTO.getQuotationId());
+			LOGGER.info("***** RBVDR221Impl - quotationMap data dto ***** {}", quotationMap);
+			QuotationEntity quotationEntity = MapperBean.mapRequestToQuotationEntity(quotationMap);
 			LOGGER.info("***** RBVDR221Impl - quotationEntity data dto ***** {}", quotationEntity);
 			String status = getStatus(quotationEntity,createdInsuranceDTO.getStatus().getId());
 
-			SalesForceBO requestBO = UpdateDwpRequest.mapRequestToSalesForceDwpBean(createdInsuranceDTO,status,user);
+			SalesForceBO requestBO = MapperBean.mapRequestToSalesForceDwpBean(createdInsuranceDTO,status,user);
 			LOGGER.info("***** RBVDR221Impl - SalesForceBO data ->{}", requestBO);
 			String json = this.getRequestBodyAsJsonFormat(requestBO);
 			LOGGER.info("***** RBVDR221Impl - json data ->{}", json);

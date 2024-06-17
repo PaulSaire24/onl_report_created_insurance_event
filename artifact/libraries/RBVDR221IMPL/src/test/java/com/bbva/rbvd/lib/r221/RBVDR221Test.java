@@ -36,6 +36,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.annotation.Resource;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
@@ -151,10 +153,10 @@ public class RBVDR221Test {
 		createdInsrcEvent.getCreatedInsurance().getStatus().setName("Contratada name");
 		createdInsrcEvent.getCreatedInsurance().setContractId("CONID");
 		createdInsrcEvent.getCreatedInsurance().getProduct().setId("842");
-		QuotationEntity quotationEntity = new QuotationEntity();
-		quotationEntity.setRfqInternalId("RFQID");
+		Map<String,Object> objectMap = new HashMap<>();
+		objectMap.put("RFQ_INTERNAL_ID","RFQID");
 		when(pdwyr008.executeGetAuthenticationData(Mockito.anyString())).thenReturn(salesforceResponseDTO);
-		when(pisdr601.executeFindQuotationByReferenceAndPayrollId(Mockito.anyString())).thenReturn(quotationEntity);
+		when(pisdr601.executeFindQuotationByReferenceAndPayrollId(Mockito.anyString())).thenReturn(objectMap);
 		when(externalApiConnector.postForEntity(anyString(), anyObject(), (Class<SalesForceBO>) any())).thenReturn(new ResponseEntity<>(salesForceBO, HttpStatus.OK));
 		String user = "ZG13001";
 		Boolean validation = this.rbvdr221.executeCreatedInsrcEvent(createdInsrcEvent,user);
@@ -172,10 +174,10 @@ public class RBVDR221Test {
 		createdInsrcEvent.getCreatedInsurance().getStatus().setName("Contratada name");
 		createdInsrcEvent.getCreatedInsurance().setContractId("CONID");
 		createdInsrcEvent.getCreatedInsurance().getProduct().setId("842");
-		QuotationEntity quotationEntity = new QuotationEntity();
-		quotationEntity.setRfqInternalId("RFQID");
+		Map<String,Object> objectMap = new HashMap<>();
+		objectMap.put("RFQ_INTERNAL_ID","RFQID");
 		when(pdwyr008.executeGetAuthenticationData(Mockito.anyString())).thenReturn(salesforceResponseDTO);
-		when(pisdr601.executeFindQuotationByReferenceAndPayrollId(Mockito.anyString())).thenReturn(quotationEntity);
+		when(pisdr601.executeFindQuotationByReferenceAndPayrollId(Mockito.anyString())).thenReturn(objectMap);
 		when(externalApiConnector.postForEntity(anyString(), anyObject(), (Class<SalesForceBO>) any())).thenReturn(new ResponseEntity<>(null, HttpStatus.NO_CONTENT));
 		String user = "ZG13001";
 		Boolean validation = this.rbvdr221.executeCreatedInsrcEvent(createdInsrcEvent,user);
@@ -194,11 +196,12 @@ public class RBVDR221Test {
 		createdInsrcEvent.getCreatedInsurance().getStatus().setName("Contratada name");
 		createdInsrcEvent.getCreatedInsurance().setContractId("CONID");
 		createdInsrcEvent.getCreatedInsurance().getProduct().setId("842");
-		QuotationEntity quotationEntity = new QuotationEntity();
-		quotationEntity.setRfqInternalId("RFQID");
-		quotationEntity.setPayrollId("RFQID");
+		Map<String,Object> objectMap = new HashMap<>();
+		objectMap.put("RFQ_INTERNAL_ID","RFQID");
+		objectMap.put("PAYROLL_ID","RFQID");
+
 		when(pdwyr008.executeGetAuthenticationData(Mockito.anyString())).thenReturn(salesforceResponseDTO);
-		when(pisdr601.executeFindQuotationByReferenceAndPayrollId(Mockito.anyString())).thenReturn(quotationEntity);
+		when(pisdr601.executeFindQuotationByReferenceAndPayrollId(Mockito.anyString())).thenReturn(objectMap);
 		when(externalApiConnector.postForEntity(anyString(), anyObject(), (Class<SalesForceBO>) any())).thenReturn(new ResponseEntity<>(null, HttpStatus.NO_CONTENT));
 		String user = "ZG13001";
 		Boolean validation = this.rbvdr221.executeCreatedInsrcEvent(createdInsrcEvent,user);
