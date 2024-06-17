@@ -5,7 +5,8 @@
 	<bean id="rbvdR221Abstract" abstract="true" class="com.bbva.rbvd.lib.r221.impl.RBVDR221Abstract">
 		<property name="internalApiConnector" ref="internalApiConnector"/>
 		<property name="apiConnectorBuilder" ref="apiConnectorBuilder"/>
-		<property name="httpClient" ref="httpClient" />
+		<property name="httpClient" ref="httpClient"/>
+		<property name="externalApiConnector" ref="externalApiConnector"/>
 	</bean>
 	<bean id="httpClient" class="com.bbva.rbvd.lib.r221.impl.util.HttpClient">
 		<property name="internalApiConnector" ref="internalApiConnector"/>
@@ -21,8 +22,12 @@
 		<constructor-arg index="0" type="org.osgi.framework.BundleContext" ref="bundleContext"/>
 	</bean>
 	<bean id="internalApiConnectorImpersonation" factory-bean="apiConnectorFactoryImpl" factory-method="getAPIConnector">
-		<constructor-arg index="0" type="org.osgi.framework.BundleContext" ref="bundleContext" />
-		<constructor-arg index="1" type="boolean" value="true" />
-		<constructor-arg index="2" type="boolean" value="true" />
+		<constructor-arg index="0" type="org.osgi.framework.BundleContext" ref="bundleContext"/>
+		<constructor-arg index="1" type="boolean" value="true"/>
+		<constructor-arg index="2" type="boolean" value="true"/>
+	</bean>
+	<bean id="externalApiConnector" factory-bean="apiConnectorFactoryImpl" factory-method="getAPIConnector">
+		<constructor-arg index="0" type="org.osgi.framework.BundleContext" ref="bundleContext"/>
+		<constructor-arg index="1" type="boolean" value="false"/>
 	</bean>
 </beans>

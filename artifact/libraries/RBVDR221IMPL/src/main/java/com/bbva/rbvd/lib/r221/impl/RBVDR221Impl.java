@@ -2,6 +2,7 @@ package com.bbva.rbvd.lib.r221.impl;
 
 import com.bbva.apx.exception.business.BusinessException;
 
+import com.bbva.pdwy.dto.auth.salesforce.SalesforceResponseDTO;
 import com.bbva.pisd.dto.insurance.aso.email.CreateEmailASO;
 import com.bbva.pisd.dto.insurance.aso.gifole.GifoleInsuranceRequestASO;
 
@@ -10,6 +11,7 @@ import com.bbva.pisd.dto.insurance.utils.PISDErrors;
 import com.bbva.pisd.dto.insurance.utils.PISDProperties;
 
 import com.bbva.pisd.dto.insurance.utils.PISDValidation;
+import com.bbva.rbvd.dto.rbvdcomunicationdwp.service.entities.QuotationEntity;
 import com.bbva.rbvd.dto.insrncsale.dao.CreatedInsrcEventDAO;
 import com.bbva.rbvd.dto.insrncsale.dao.RequiredFieldsEmissionDAO;
 
@@ -21,82 +23,134 @@ import com.bbva.rbvd.dto.insrncsale.sigma.SigmaSetAlarmStatusDTO;
 
 import com.bbva.rbvd.dto.insrncsale.utils.RBVDProperties;
 
+import com.bbva.rbvd.dto.rbvdcomunicationdwp.service.saleforce.SalesForceBO;
+import com.bbva.rbvd.lib.r221.transform.bean.MapperBean;
+import com.bbva.rbvd.lib.r221.util.JsonHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestClientException;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.HashMap;
 
 import java.math.BigDecimal;
-
-import static java.util.Objects.isNull;
+import java.util.Objects;
 
 public class RBVDR221Impl extends RBVDR221Abstract {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(RBVDR221Impl.class);
-
 	private static final String STATUS_ALARM = "CRITICAL";
+	private static final String AUTHORIZATION_HEADER = "Authorization";
+	private static final String SERVICE_CONNECTION_PROPERTY = "updateStatusSalesForceDwp";
 
-	@Override
-	public Boolean executeCreatedInsrcEvent(CreatedInsrcEventDTO createdInsrcEvent) {
+
+    @Override
+	public Boolean executeCreatedInsrcEvent(CreatedInsrcEventDTO createdInsrcEvent, String user) {
 		LOGGER.info("***** RBVDR221Impl - executeCreatedInsrcEvntBusinessLogic START *****");
 		LOGGER.info("***** RBVDR221Impl - executeCreatedInsrcEvntBusinessLogic RequestBody {} *****", createdInsrcEvent);
 
 		CreatedInsuranceDTO createdInsuranceDTO = createdInsrcEvent.getCreatedInsurance();
 
-		Map<String, Object> argumentsForGetRequiredFields = new HashMap<>();
-		argumentsForGetRequiredFields.put(RBVDProperties.FIELD_POLICY_QUOTA_INTERNAL_ID.getValue(), createdInsuranceDTO.getQuotationId());
+		if(createdInsuranceDTO.getProduct().getId().equals("842")){
+			LOGGER.info("***** RBVDR221Impl - product vida ley - start");
+			SalesforceResponseDTO authentication =  this.pdwyR008.executeGetAuthenticationData(SERVICE_CONNECTION_PROPERTY);
+			LOGGER.info("***** RBVDR221Impl - authentication data dto ***** {}", authentication);
+			Map<String,Object> quotationMap = this.pisdR601.executeFindQuotationByReferenceAndPayrollId(createdInsuranceDTO.getQuotationId());
+			LOGGER.info("***** RBVDR221Impl - quotationMap data dto ***** {}", quotationMap);
+			QuotationEntity quotationEntity = MapperBean.mapRequestToQuotationEntity(quotationMap);
+			LOGGER.info("***** RBVDR221Impl - quotationEntity data dto ***** {}", quotationEntity);
+			String status = getStatus(quotationEntity,createdInsuranceDTO.getStatus().getId());
 
-		Map<String, Object> responseGetEmissionRequiredFields = this.pisdR012.
-				executeGetASingleRow(RBVDProperties.DYNAMIC_QUERY_FOR_INSURANCE_CONTRACT.getValue(), argumentsForGetRequiredFields);
+			SalesForceBO requestBO = MapperBean.mapRequestToSalesForceDwpBean(createdInsuranceDTO,status,user);
+			LOGGER.info("***** RBVDR221Impl - SalesForceBO data ->{}", requestBO);
+			String json = this.getRequestBodyAsJsonFormat(requestBO);
+			LOGGER.info("***** RBVDR221Impl - json data ->{}", json);
+			HttpEntity<String> entity = new HttpEntity<>(json, createHttpHeaders(authentication));
 
-		RequiredFieldsEmissionDAO emissionDAO = buildEmissionRequiredFieldsDAO(responseGetEmissionRequiredFields);
+			try {
+				ResponseEntity<SalesForceBO> responseEntity = this.externalApiConnector.postForEntity(SERVICE_CONNECTION_PROPERTY, entity,
+						SalesForceBO.class);
+				if(Objects.isNull(responseEntity.getBody())){
+					LOGGER.info("***** RBVDR408Impl - executeConsumeDWPServiceForUpdateStatus END - NULL RESPONSE SALESFORCE API *****");
+					return false;
+				}
+				LOGGER.info("***** RBVDR408Impl - executeConsumeDWPServiceForUpdateStatus ***** Response: {}", getRequestBodyAsJsonFormat(responseEntity.getBody()));
+				LOGGER.info("***** RBVDR408Impl - executeConsumeDWPServiceForUpdateStatus END *****");
+			} catch (RestClientException ex) {
+				this.addAdviceWithDescription("RBVD10094960",ex.getMessage());
+				LOGGER.info("***** RBVDR408Impl - executeConsumeDWPServiceForUpdateStatus ***** Exception: {}", ex.getMessage());
+				return false;
+			}
+			return true;
+		}else {
+			Map<String, Object> argumentsForGetRequiredFields = new HashMap<>();
+			argumentsForGetRequiredFields.put(RBVDProperties.FIELD_POLICY_QUOTA_INTERNAL_ID.getValue(), createdInsuranceDTO.getQuotationId());
 
-		LOGGER.info("***** RBVDR221Impl - executeCreatedInsrcEvntBusinessLogic ***** Executing PISDR012 executeGetRequiredFieldsForCreatedInsrcEvnt method");
-		Map<String, Object> responseGetCreatedInsrcEvntRequiredFields = this.pisdR012.
-				executeGetRequiredFieldsForCreatedInsrcEvnt(createdInsuranceDTO.getQuotationId());
+			Map<String, Object> responseGetEmissionRequiredFields = this.pisdR012.
+					executeGetASingleRow(RBVDProperties.DYNAMIC_QUERY_FOR_INSURANCE_CONTRACT.getValue(), argumentsForGetRequiredFields);
 
-		CreatedInsrcEventDAO createdInsrcEventDAO = buildCreatedInsrcEvntRequiredFieldsDAO(responseGetCreatedInsrcEvntRequiredFields);
+			RequiredFieldsEmissionDAO emissionDAO = buildEmissionRequiredFieldsDAO(responseGetEmissionRequiredFields);
 
-		CustomerBO customerInformation = this.httpClient.executeListCustomerService(createdInsuranceDTO.getHolder().getId());
+			LOGGER.info("***** RBVDR221Impl - executeCreatedInsrcEvntBusinessLogic ***** Executing PISDR012 executeGetRequiredFieldsForCreatedInsrcEvnt method");
+			Map<String, Object> responseGetCreatedInsrcEvntRequiredFields = this.pisdR012.
+					executeGetRequiredFieldsForCreatedInsrcEvnt(createdInsuranceDTO.getQuotationId());
 
-		try {
-			this.validateCustomerInformation(customerInformation);
-		} catch (BusinessException ex) {
-			this.addAdviceWithDescription(ex.getAdviceCode(), ex.getMessage());
-			return false;
+			CreatedInsrcEventDAO createdInsrcEventDAO = buildCreatedInsrcEvntRequiredFieldsDAO(responseGetCreatedInsrcEvntRequiredFields);
+
+			CustomerBO customerInformation = this.httpClient.executeListCustomerService(createdInsuranceDTO.getHolder().getId());
+
+			try {
+				this.validateCustomerInformation(customerInformation);
+			} catch (BusinessException ex) {
+				this.addAdviceWithDescription(ex.getAdviceCode(), ex.getMessage());
+				return false;
+			}
+
+			LOGGER.info("***** RBVDR221Impl - executeCreatedInsrcEvntBusinessLogic ***** Building CreateEmailASO object");
+
+			try {
+				CreateEmailASO emailRequest = this.mapperHelper.createEmailServiceRequest(createdInsuranceDTO, emissionDAO, createdInsrcEventDAO, customerInformation);
+				this.httpClient.executeMailSendService(emailRequest);
+			} catch (BusinessException ex) {
+				this.httpClient.executeSetAlarmStatus(this.createAlarmErrorRequest("createEmail"));
+				this.addAdviceWithDescription(ex.getAdviceCode(), ex.getMessage());
+				return false;
+			}
+
+
+			LOGGER.info("***** RBVDR221Impl - executeCreatedInsrcEvntBusinessLogic ***** Building GifoleInsuranceRequestASO object");
+			try {
+				BankEventDTO bank = createdInsrcEvent.getHeader().getOrigin().getBank();
+				GifoleInsuranceRequestASO gifoleRequest = this.mapperHelper.createGifoleServiceRequest(createdInsuranceDTO, createdInsrcEventDAO,
+						customerInformation, bank);
+				this.httpClient.executeGifoleService(gifoleRequest);
+			} catch (BusinessException ex) {
+				this.httpClient.executeSetAlarmStatus(this.createAlarmErrorRequest("createGifoleInsuranceRequest"));
+				this.addAdviceWithDescription(ex.getAdviceCode(), ex.getMessage());
+				return false;
+			}
+			LOGGER.info("***** RBVDR221Impl - executeCreatedInsrcEvntBusinessLogic END *****");
+			return true;
 		}
+    }
 
-		LOGGER.info("***** RBVDR221Impl - executeCreatedInsrcEvntBusinessLogic ***** Building CreateEmailASO object");
-
-		try {
-			CreateEmailASO emailRequest = this.mapperHelper.createEmailServiceRequest(createdInsuranceDTO, emissionDAO, createdInsrcEventDAO, customerInformation);
-			this.httpClient.executeMailSendService(emailRequest);
-		} catch (BusinessException ex) {
-			this.httpClient.executeSetAlarmStatus(this.createAlarmErrorRequest("createEmail"));
-			this.addAdviceWithDescription(ex.getAdviceCode(), ex.getMessage());
-			return false;
+	private String getStatus(QuotationEntity quotationEntity, String statusId) {
+		String status = null;
+		if(Objects.isNull(quotationEntity.getRfqInternalId()) && "PREFORMALIZADA".equalsIgnoreCase(statusId)){
+			status = "CONTRACTED";
+		} else if (Objects.nonNull(quotationEntity.getRfqInternalId()) && "FORMALIZADA".equalsIgnoreCase(statusId)) {
+			status = "CLOSED";
 		}
-
-		LOGGER.info("***** RBVDR221Impl - executeCreatedInsrcEvntBusinessLogic ***** Building GifoleInsuranceRequestASO object");
-
-		try {
-			BankEventDTO bank = createdInsrcEvent.getHeader().getOrigin().getBank();
-			GifoleInsuranceRequestASO gifoleRequest = this.mapperHelper.createGifoleServiceRequest(createdInsuranceDTO, createdInsrcEventDAO,
-					customerInformation, bank);
-			this.httpClient.executeGifoleService(gifoleRequest);
-		} catch (BusinessException ex) {
-			this.httpClient.executeSetAlarmStatus(this.createAlarmErrorRequest("createGifoleInsuranceRequest"));
-			this.addAdviceWithDescription(ex.getAdviceCode(), ex.getMessage());
-			return false;
-		}
-
-		LOGGER.info("***** RBVDR221Impl - executeCreatedInsrcEvntBusinessLogic END *****");
-		return true;
+		return status;
 	}
 
 	private void validateCustomerInformation(CustomerBO customerInformation) {
-		if(isNull(customerInformation)) {
+		if(Objects.isNull(customerInformation)) {
 			throw PISDValidation.build(PISDErrors.ERROR_CONNECTION_VALIDATE_CUSTOMER_SERVICE);
 		}
 	}
@@ -146,6 +200,21 @@ public class RBVDR221Impl extends RBVDR221Abstract {
 		sigmaSetAlarmStatusDTO.setStatus(STATUS_ALARM);
 		sigmaSetAlarmStatusDTO.setReason("Hubo un problema al consumir el servicio " + serviceName + ", revisar el log e identificar el problema.");
 		return sigmaSetAlarmStatusDTO;
+	}
+
+
+	private String getRequestBodyAsJsonFormat(Object requestBody) {
+		return JsonHelper.getInstance().toJsonString(requestBody);
+	}
+
+	private HttpHeaders createHttpHeaders(SalesforceResponseDTO authorizationData) {
+		HttpHeaders headers = new HttpHeaders();
+		MediaType mediaType = new MediaType("application","json", StandardCharsets.UTF_8);
+		headers.setContentType(mediaType);
+		headers.set(AUTHORIZATION_HEADER,
+				authorizationData.getTokenType().concat(" ").
+						concat(authorizationData.getAccessToken()));
+		return headers;
 	}
 
 }

@@ -98,6 +98,11 @@
 					</dto>
 				</list>
 			</dto>
+			<dto order="8" name="status" mandatory="0" package="com.bbva.rbvd.dto.insrncsale.events.StatusDTO" artifactId="RBVDC201">
+				<parameter order="1" name="id" mandatory="1" type="String" size="15"/>
+				<parameter order="2" name="name" mandatory="0" type="String" size="50"/>
+			</dto>
+			<parameter order="9" name="contractId" mandatory="0" type="String" size="30"/>
 		</dto>
 		<dto order="2" name="header" mandatory="1" package="com.bbva.rbvd.dto.insrncsale.events.header.HeaderDTO" artifactId="RBVDC201">
 			<dto order="1" name="event" mandatory="1" package="com.bbva.rbvd.dto.insrncsale.events.header.EventDTO" artifactId="RBVDC201">
